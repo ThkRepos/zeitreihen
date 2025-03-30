@@ -82,7 +82,7 @@ python app_2_install_dependencies.py
 Danach können Sie die Anwendung direkt starten:
 
 ```bash
-python app.py
+python app_3_start.py
 ```
 
 ### Hinweis zu tkinter
@@ -124,12 +124,12 @@ python -c "import tkinter; tkinter._test()"
 
 Nach dem Start der Anwendung:
 
-1. Wählen Sie im Steuerungspanel eine Datei aus dem Dropdown-Menü
-2. Setzen Sie den gewünschten Zeitraum mit dem Datumsfilter
+1. Laden Sie über den Datei-Upload ihre Zeitreihen-Daten hoch - Schema weiter unten beachten
+2. Setzen Sie nach dem Upload Ihrer Daten den gewünschten Zeitraum mit dem Datumsfilter
 3. Aktivieren Sie die Zeiteinheiten, die Sie visualisieren möchten (M1-M30)
 4. Wählen Sie ein Farbschema für die Darstellung
 5. Nutzen Sie die interaktiven Funktionen des Charts (Zoomen, Schwenken, Hover)
-6. Optional: Aktivieren Sie Live-Daten für Echtzeit-Updates
+6. Optional: Nur Live-Daten verwenden für Echtzeit-Updates zeitversetzt um 1 Minute
 7. Bei Bedarf exportieren Sie das Diagramm als Bild oder HTML
 
 ## Datenformat
@@ -178,10 +178,10 @@ Die App verarbeitet tab-getrennte CSV-Dateien mit folgendem Namensformat:
 - Layout: Grid-System mit 4 Hauptbereichen
 
 ### Steuerungspanel
-- Dateiauswahl-Dropdown
+- Dateiauswahl-Upload
 - Datumsauswahl mit Zeitfiltern
 - Farbschema-Auswahl
-- Live-Daten-Steuerung
+- Live-Daten-Aktivierung
 - Export-Optionen
 
 ### Zeiteinheiten-Panel
@@ -244,24 +244,24 @@ Die App bietet drei verschiedene Farbschemata zur klaren Unterscheidung der Zeit
 
 Die Farbschemata sind in der Datei `resources/color_schemes.json` definiert und können bei Bedarf angepasst werden.
 
-## Live-Daten-Integration
+## Live-Daten-Integration - zukünftige Entwicklung
 
 Die App unterstützt die Integration von Live-Daten, wodurch Echtzeit-Updates zu den visualisierten Zeitreihen möglich sind.
 
 ### Unterstützte Datenquellen
 - Lokaler Dateiwatcher
-- Websocket-Verbindung
-- REST API-Polling
+- Websocket-Verbindung zukünftige Entwicklung
+- REST API-Polling zukünftige Entwicklung
 
 ### Konfigurationsoptionen
 - Verbindungstyp
-- Aktualisierungsrate (1s, 5s, 10s, 30s, 60s)
-- Quellspezifische Einstellungen
+- Aktualisierungsrate (1s, 5s, 10s, 30s, 60s) zukünftige Entwicklung
+- Quellspezifische Einstellungen zukünftige Entwicklung
 
 ### Visualisierung
-- Nahtloser Übergang zwischen historischen und Live-Daten
-- Visuelle Unterscheidung von Echtzeit-Daten
-- Automatisches Scrolling für neueste Daten
+- Statistische Daten 
+- Live-Daten zukünftige Entwicklung
+- Automatisches Scrolling für neueste Daten - (Dateiwatcher als erste Entwicklungsstufe)
 
 ## Cache-System
 
@@ -297,32 +297,33 @@ Für jede CSV-Datei wird eine entsprechende JSON-Metadatendatei erstellt:
 
 ```
 zeitreihen-app/
-├── app.py                    # Hauptanwendungsdatei
-├── README.md                 # Diese Dokumentation
-├── requirements.txt          # Abhängigkeiten
-├── app_setup.py              # Einrichtungsskript (virtuelle Umgebung)
-├── install_dependencies.py   # Hilfsskript zur Installation von Abhängigkeiten
-├── start_app.bat             # Startskript für Windows (generiert)
-├── start_app.sh              # Startskript für macOS/Linux (generiert)
+├── app_3_start.py                    # Hauptanwendungsdatei
+├── README.md                         # Diese Dokumentation
+├── requirements.txt                  # Abhängigkeiten
+├── app_1_setup.py                    # Einrichtungsskript (virtuelle Umgebung)
+├── app_2_install_dependencies.py     # Hilfsskript zur Installation von Abhängigkeiten
+├── start_app.bat                     # Startskript für Windows (generiert)
+├── start_app.sh                      # Startskript für macOS/Linux (generiert)
 ├── config/
-│   └── settings.json         # Allgemeine App-Einstellungen
+│   └── settings.json                 # Allgemeine App-Einstellungen
 ├── modules/
-│   ├── data_manager.py       # CSV-Einlesung, Caching, Datentransformation
-│   ├── plotly_visualizer.py  # Plotly-Integration, Chart-Erstellung
-│   ├── live_data_handler.py  # Handling von Live-Daten-Streams
-│   └── ui_components.py      # Tkinter-UI-Komponenten
+│   ├── data_manager.py               # CSV-Einlesung, Caching, Datentransformation
+│   ├── plotly_visualizer.py          # Plotly-Integration, Chart-Erstellung
+│   ├── live_data_handler.py          # Handling von Live-Daten-Streams
+│   └── ui_components.py              # Tkinter-UI-Komponenten
 ├── cache/
-│   ├── data/                 # Gespeicherte CSV-Dateien
-│   └── meta/                 # Metadaten-JSON-Dateien
+│   ├── data/                         # Gespeicherte CSV-Dateien
+│   └── meta/                         # Metadaten-JSON-Dateien
 └── resources/
-    └── color_schemes.json    # Vordefinierte Farbschemata
+    └── color_schemes.json            # Vordefinierte Farbschemata
 ```
 
 ## Entwicklungsplan
 
 ### Phase 1: Grundlagen
 - Projektstruktur aufsetzen
-- Dateneinlesungsfunktionen implementieren
+- Daten-Einlesungs-Funktionen implementieren (CSV-Einlesung, Caching)
+- Bestenfalls Ordner auswahl und Liste der CSV Dateien verarbeiten (Batch)
 - Basis-UI mit Tkinter erstellen
 
 ### Phase 2: Plotly-Integration
@@ -335,7 +336,7 @@ zeitreihen-app/
 - Datumsfilterung und -auswahl
 - Cache-Management
 
-### Phase 4: Live-Daten-Erweiterung
+### Phase 4: Live-Daten-Erweiterung zukünftige Entwicklung
 - Live-Daten-Handler-Modul implementieren
 - Verbindungseinstellungen-Dialog
 - Integration in die Hauptanwendung
@@ -350,7 +351,8 @@ zeitreihen-app/
 ### Allgemeine Probleme
 
 **F: Die Anwendung startet nicht und zeigt einen ImportError**  
-A: Stellen Sie sicher, dass alle Abhängigkeiten korrekt installiert sind. Führen Sie `python install_dependencies.py` aus oder verwenden Sie das Setup-Skript erneut.
+A: Stellen Sie sicher, dass alle Abhängigkeiten korrekt installiert sind. 
+Führen Sie `python app_2_install_dependencies.py` aus oder verwenden Sie das Setup-Skript erneut.
 
 **F: Die Charts werden nicht angezeigt**  
 A: Prüfen Sie, ob die ausgewählte CSV-Datei dem erwarteten Format entspricht und gültige Daten enthält.
