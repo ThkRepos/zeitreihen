@@ -1,0 +1,88 @@
+import re
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import os
+import json
+
+
+class DataImporter:
+    def __init__(self, config):
+        self.config = config
+        self.cache_dir = 'cache'
+        self.data_dir = os.path.join(self.cache_dir, 'data')
+        self.meta_dir = os.path.join(self.cache_dir, 'meta')
+        self.ensure_cache_directories()
+
+    def ensure_cache_directories(self):
+        for directory in [self.cache_dir, self.data_dir, self.meta_dir]:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+    def import_csv(self, file_path):
+        try:
+            file_name = file_path.split('/')[-1]
+            symbol, interval, start_date, end_date = self.parse_file_name(file_name)
+            cache_file = os.path.join(self.data_dir, f"{symbol}_{interval}.parquet")
+            meta_file = os.path.join(self.meta_dir, f"{symbol}_{interval}.json")
+
+            if os.path.exists(cache_file) and os.path.exists(meta_file):
+                df = pd.read_parquet(cache_file)
+                print(f"Daten aus Cache geladen: {file_name}")
+            else:
+                df = pd.read_csv(file_path,
+                                 delimiter=self.config['delimiter'].encode().decode('unicode_escape'),
+                                 names=self.config['columns'],
+                                 skiprows=1)
+
+                df['daytime'] = pd.to_datetime(df['DATE'].astype(str) + ' ' + df['TIME'].astype(str))
+                df['DATE'] = pd.to_datetime(df['DATE'], format='%Y.%m.%d')
+                # Numerische Spalten konvertieren
+                for spalte in ['OPEN', 'HIGH', 'LOW', 'CLOSE']:
+                    df[spalte] = pd.to_numeric(df[spalte], errors='coerce')
+
+                # Richtung bestimmen (long oder short) Increasing / Decreasing
+                df['direction'] = np.where(df['CLOSE'] >= df['OPEN'], 'green', 'red')
+                # Caching
+                df.to_parquet(cache_file)
+                self.update_metadata(meta_file, symbol, interval, start_date, end_date, df)
+                print(f"Datei erfolgreich eingelesen und cached: {file_path}")
+
+            # Nur die benötigten Spalten behalten und umbenennen
+            result_df = df[['DATE', 'TIME', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'direction', 'daytime']]
+            result_df.columns = ['date', 'time', 'open', 'high', 'low', 'close', 'direction', 'daytime']
+
+            # print(result_df.to_string())
+            return result_df, symbol, interval, start_date, end_date
+        except Exception as e:
+            print(f"Error importing CSV file: {e}")
+            return None, None, None, None, None
+
+    def parse_file_name(self, file_name):
+        match = re.match(r'(\w+)_(M\d+)_(\d{12})_(\d{12})\.csv', file_name)
+
+        if match:
+            symbol, interval, start_date, end_date = match.groups()
+            start_date = datetime.strptime(start_date, '%Y%m%d%H%M')
+            end_date = datetime.strptime(end_date, '%Y%m%d%H%M')
+            # print(f"Ext: {symbol}, {interval}, {start_date}, {end_date}")
+            return symbol, interval, start_date, end_date
+        else:
+            raise ValueError("Invalid file name format")
+
+    def update_metadata(self, meta_file, symbol, interval, start_date, end_date, df):
+        metadata = {
+            "filename": f"{symbol}_{interval}.parquet",
+            "symbol": symbol,
+            "timeframe": interval,
+            "start_datetime": start_date.strftime("%Y-%m-%dT%H:%M:%S"),
+            "end_datetime": end_date.strftime("%Y-%m-%dT%H:%M:%S"),
+            "last_accessed": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            "cache_expiry": (datetime.now() + pd.Timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%S"),
+            "stats": {
+                "rows": len(df),
+                "column": list(df.columns)
+            }
+        }
+        with open(meta_file, 'w') as f:
+            json.dump(metadata, f, indent=4)
