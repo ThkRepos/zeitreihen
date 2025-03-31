@@ -1,0 +1,17 @@
+{
+    "delimiter": "\\t",
+    "columns": [
+        "DATE",
+        "TIME",
+        "OPEN",
+        "HIGH",
+        "LOW",
+        "CLOSE",
+        "TICKVOL",
+        "VOL",
+        "SPREAD"
+    ],
+    "date_format": "%Y-%m-%d %H:%M:%S",
+    "watch_folder": "C:/AlfaKurse/Python/zeitreihen/watcher",
+    "update_interval": 60
+}
