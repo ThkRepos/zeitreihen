@@ -98,9 +98,9 @@ class ConfigWindow:
 
     def reset_fields(self):
         self.delimiter_entry.delete(0, tk.END)
-        self.delimiter_entry.insert(0, ",")
+        self.delimiter_entry.insert(0, "\t")
         self.columns_entry.delete(0, tk.END)
-        self.columns_entry.insert(0, "Datum,Open,High,Low,Close")
+        self.columns_entry.insert(0, "DATE,TIME,OPEN,HIGH,LOW,CLOSE,TICKVOL,VOL,SPREAD")
         self.date_format_entry.delete(0, tk.END)
         self.date_format_entry.insert(0, "%Y-%m-%d %H:%M:%S")
         self.folder_entry.delete(0, tk.END)
