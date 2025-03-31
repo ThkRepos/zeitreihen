@@ -5,8 +5,16 @@ import json
 
 
 class ConfigWindow:
-    def __init__(self, master):
+    def __init__(self, master, update_callback):
+        self.color_scheme_dropdown = None
+        self.interval_entry = None
+        self.folder_entry = None
+        self.date_format_entry = None
+        self.columns_entry = None
+        self.delimiter_entry = None
+        self.color_scheme_var = None
         self.master = master
+        self.update_callback = update_callback
         self.window = tk.Toplevel(master)
         self.window.title("Konfiguration")
         self.window.geometry("750x450")
@@ -97,6 +105,7 @@ class ConfigWindow:
         with open("config/config.json", "w") as f:
             json.dump(config, f, indent=4)
 
+        self.update_callback()
         messagebox.showinfo("Info", "Konfiguration gespeichert!")
         self.window.destroy()
 
@@ -133,7 +142,7 @@ class ConfigWindow:
         self.columns_entry.delete(0, tk.END)
         self.columns_entry.insert(0, "DATE,TIME,OPEN,HIGH,LOW,CLOSE,TICKVOL,VOL,SPREAD")
         self.date_format_entry.delete(0, tk.END)
-        self.date_format_entry.insert(0, "%Y-%m-%d %H:%M:%S")
+        self.date_format_entry.insert(0, "%Y.%m.%d %H:%M:%S")
         self.folder_entry.delete(0, tk.END)
         self.interval_entry.delete(0, tk.END)
         self.interval_entry.insert(0, "60")
