@@ -1,6 +1,6 @@
 # modules/ConfigWindow.py
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import json
 
 
@@ -10,7 +10,14 @@ class ConfigWindow:
         self.window = tk.Toplevel(master)
         self.window.title("Konfiguration")
         self.window.geometry("750x450")
+        self.color_schemes = self.load_color_schemes()
         self.create_widgets()
+        self.create_color_scheme_dropdown()
+        self.center_window()
+
+    def load_color_schemes(self):
+        with open('resources/color_schemes.json', 'r') as f:
+            return json.load(f)
 
     def create_widgets(self):
         # CSV-Import-Einstellungen
@@ -42,12 +49,32 @@ class ConfigWindow:
 
         # Buttons
         button_frame = tk.Frame(self.window)
-        button_frame.grid(row=5, column=0, columnspan=4, pady=20)
+        button_frame.grid(row=6, column=0, columnspan=4, pady=20)
 
         tk.Button(button_frame, text="Speichern", command=self.save_config, bg='lightgreen').pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Laden", command=self.load_config, bg='lightyellow').pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Zurücksetzen", command=self.reset_fields, bg='lightpink').pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='salmon').pack(side=tk.LEFT, padx=5)
+
+    def create_color_scheme_dropdown(self):
+        tk.Label(self.window, text="Farbschema:").grid(row=5, column=0, sticky="w", padx=5, pady=5)
+        self.color_scheme_var = tk.StringVar()
+        self.color_scheme_dropdown = ttk.Combobox(self.window, textvariable=self.color_scheme_var, state="readonly")
+        self.color_scheme_dropdown['values'] = list(self.color_schemes['schemes'].keys())
+        self.color_scheme_dropdown.grid(row=5, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.color_scheme_dropdown.bind("<<ComboboxSelected>>", self.update_color_preview)
+        self.color_scheme_var.set(self.color_schemes['default'])
+        self.update_color_preview()
+
+    def update_color_preview(self, event=None):
+        selected_scheme = self.color_scheme_var.get()
+        colors = self.color_schemes['schemes'][selected_scheme]['colors']
+        color_frame = tk.Frame(self.window)
+        color_frame.grid(row=8, column=1, columnspan=3, sticky='nsew')
+
+        for i, (interval, color) in enumerate(colors.items()):
+            label = tk.Label(color_frame, text=interval, bg=color, width=10, wraplength=60, justify='center')
+            label.grid(row=i // 6, column=i % 6, padx=2, pady=2, sticky='nsew')
 
     def close_clicked(self):
         self.window.destroy()
@@ -63,7 +90,8 @@ class ConfigWindow:
             "columns": self.columns_entry.get().split(","),
             "date_format": self.date_format_entry.get(),
             "watch_folder": self.folder_entry.get(),
-            "update_interval": int(self.interval_entry.get())
+            "update_interval": int(self.interval_entry.get()),
+            "color_scheme": self.color_scheme_var.get()
         }
 
         with open("config/config.json", "w") as f:
@@ -92,6 +120,10 @@ class ConfigWindow:
             self.interval_entry.delete(0, tk.END)
             self.interval_entry.insert(0, str(config["update_interval"]))
 
+            if "color_scheme" in config:
+                self.color_scheme_var.set(config["color_scheme"])
+                self.update_color_preview()
+
         except FileNotFoundError:
             messagebox.showerror("Fehler", "Keine Konfigurationsdatei gefunden!")
 
@@ -105,3 +137,11 @@ class ConfigWindow:
         self.folder_entry.delete(0, tk.END)
         self.interval_entry.delete(0, tk.END)
         self.interval_entry.insert(0, "60")
+
+    def center_window(self):
+        self.window.update_idletasks()
+        width = self.window.winfo_width()
+        height = self.window.winfo_height()
+        x = (self.window.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.window.winfo_screenheight() // 2) - (height // 2)
+        self.window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
