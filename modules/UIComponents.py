@@ -1,10 +1,17 @@
 import tkinter as tk
+from datetime import datetime
 from tkinter import ttk
 import json
+
+from tkcalendar import DateEntry
 
 
 class UIComponents:
     def __init__(self, master, csv_import_callback, config_callback, end_session_callback):
+        self.alle_anzeigen_button = None
+        self.date_range_label = None
+        self.timeseries_frame = None
+        self.update_plot_button = None
         self.farbschemata = None
         self.metadaten = None
         self.config = None
@@ -41,23 +48,58 @@ class UIComponents:
 
         buttons = [
             ("CSV Import", self.csv_import_callback),
-            ("Datumsauswahl", self.datumsauswahl),
-            # ("Dateiwatcher", self.dateiwatcher),
-            ("Einstellungen", self.config_callback),
-            ("Sitzung beenden", self.end_session_callback)
+            ("Datumsauswahl", self.open_date_picker),
+            ("Einstellungen", self.config_callback)
         ]
 
         for text, command in buttons:
             btn = ttk.Button(button_frame, text=text, command=command)
             btn.pack(side=tk.LEFT, padx=5)
 
+        self.date_range_label = ttk.Label(button_frame, text=self.get_date_range_text())
+        self.date_range_label.pack(side=tk.LEFT, padx=5)
+
+        end_session_btn = ttk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback)
+        end_session_btn.pack(side=tk.RIGHT, padx=5)
         self.timeseries_frame = ttk.Frame(self.master)
         self.timeseries_frame.pack(fill=tk.X, padx=10, pady=5)
-
         self.alle_anzeigen_button = ttk.Button(self.timeseries_frame, text="Alle anzeigen", command=self.zeige_alle)
         self.alle_anzeigen_button.pack(side=tk.LEFT, padx=5)
-
+        self.update_plot_button = ttk.Button(self.timeseries_frame, text="Chart-Plotten", command=self.update_plot)
+        self.update_plot_button.pack(side=tk.LEFT, padx=5)
         self.erstelle_intervall_checkboxen()
+
+    def update_plot(self):
+        active_series = self.hole_aktive_zeitreihen()
+        date_range = self.metadaten['date_range']
+        # Hier würden Sie die Plotting-Funktion aufrufen
+        print(f"Aktualisiere Plot mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
+
+    def get_date_range_text(self):
+        start = self.metadaten['date_range']['start']
+        end = self.metadaten['date_range']['end']
+        return f"Datumsbereich: {start} - {end}"
+
+    def open_date_picker(self):
+        date_window = tk.Toplevel(self.master)
+        date_window.title("Datumsauswahl")
+
+        start_date = datetime.strptime(self.metadaten['date_range']['start'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(self.metadaten['date_range']['end'], '%Y-%m-%d').date()
+
+        ttk.Label(date_window, text="Startdatum:").grid(row=0, column=0, padx=5, pady=5)
+        start_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
+        start_picker.set_date(start_date)
+        start_picker.grid(row=0, column=1, padx=5, pady=5)
+
+        ttk.Label(date_window, text="Enddatum:").grid(row=1, column=0, padx=5, pady=5)
+        end_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
+        end_picker.set_date(end_date)
+        end_picker.grid(row=1, column=1, padx=5, pady=5)
+
+        ttk.Button(date_window,
+                   text="Bestätigen",
+                   command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=0, columnspan=2, pady=10)
 
     def aktualisiere_intervalle(self, intervalle):
         self.lade_config()
@@ -106,8 +148,21 @@ class UIComponents:
             self.aktive_zeitreihen.remove(intervall)
         print(f"Aktive Zeitreihen: {self.aktive_zeitreihen}")
 
+    def update_date_range(self, start_date, end_date, window):
+        self.metadaten['date_range']['start'] = start_date.strftime('%Y-%m-%d')
+        self.metadaten['date_range']['end'] = end_date.strftime('%Y-%m-%d')
+        self.date_range_label.config(text=self.get_date_range_text())
+        print(f"Neuer Datumsbereich: {self.metadaten['date_range']}")
+        window.destroy()
+
     def zeige_alle(self):
-        print("Zeige alle Zeitreihen")
+        all_active = all(self.zeitreihen_checkboxen[intervall][1].get() for intervall in self.zeitreihen_checkboxen)
+
+        for intervall, (cb, var, _) in self.zeitreihen_checkboxen.items():
+            var.set(not all_active)
+            self.aktualisiere_aktive_zeitreihen(intervall)
+
+        print("Alle Zeitreihen aktiviert" if not all_active else "Alle Zeitreihen deaktiviert")
 
     def zeige_zeitreihe(self, zeitreihe):
         print(f"Zeige Zeitreihe: {zeitreihe}")
