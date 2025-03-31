@@ -1,5 +1,4 @@
-# modules/config_window.py
-
+# modules/ConfigWindow.py
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import json
