@@ -13,7 +13,7 @@ develop-eggs/
 dist/
 cache/
 data/
-
+plots/*.html
 lib/
 lib64/
 parts/
@@ -126,7 +126,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-metadata.json
+/metadata.json
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
@@ -139,3 +139,4 @@ metadata.json
 # App Environment
 zeitreihen_venv/
 
+/metaplot.json
