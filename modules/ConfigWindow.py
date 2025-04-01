@@ -48,7 +48,7 @@ class ConfigWindow:
         tk.Label(self.window, text="Überwachter Ordner:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         self.folder_entry = tk.Entry(self.window, width=60)  # Breiter
         self.folder_entry.grid(row=3, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        tk.Button(self.window, text="Durchsuchen", command=self.browse_folder, bg='lightblue').grid(row=3, column=3, padx=5, pady=5)
+        tk.Button(self.window, text="Durchsuchen", command=self.browse_folder, bg='orange').grid(row=3, column=3, padx=5, pady=5)
 
         tk.Label(self.window, text="Aktualisierungsintervall (s):").grid(row=4, column=0, sticky="w", padx=5, pady=5)
         self.interval_entry = tk.Entry(self.window, width=60)  # Breiter
@@ -59,10 +59,10 @@ class ConfigWindow:
         button_frame = tk.Frame(self.window)
         button_frame.grid(row=6, column=0, columnspan=4, pady=20)
 
-        tk.Button(button_frame, text="Speichern", command=self.save_config, bg='lightgreen').pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Speichern", command=self.save_config, bg='green').pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Laden", command=self.load_config, bg='lightyellow').pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Zurücksetzen", command=self.reset_fields, bg='lightpink').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='salmon').pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='red').pack(side=tk.LEFT, padx=5)
 
     def create_color_scheme_dropdown(self):
         tk.Label(self.window, text="Farbschema:").grid(row=5, column=0, sticky="w", padx=5, pady=5)

@@ -8,6 +8,7 @@ from tkcalendar import DateEntry
 
 class UIComponents:
     def __init__(self, master, csv_import_callback, config_callback, end_session_callback):
+        self.chart_label = None
         self.alle_anzeigen_button = None
         self.date_range_label = None
         self.timeseries_frame = None
@@ -58,8 +59,9 @@ class UIComponents:
 
         self.date_range_label = ttk.Label(button_frame, text=self.get_date_range_text())
         self.date_range_label.pack(side=tk.LEFT, padx=5)
-
-        end_session_btn = ttk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback)
+        style = ttk.Style()
+        style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
+        end_session_btn = ttk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback, style="Red.TButton")
         end_session_btn.pack(side=tk.RIGHT, padx=5)
         self.timeseries_frame = ttk.Frame(self.master)
         self.timeseries_frame.pack(fill=tk.X, padx=10, pady=5)
@@ -84,14 +86,21 @@ class UIComponents:
         date_window = tk.Toplevel(self.master)
         date_window.title("Datumsauswahl")
 
+        # Fenster zentrieren
+        date_window.update_idletasks()
+        width = date_window.winfo_width()
+        height = date_window.winfo_height()
+        x = (date_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (date_window.winfo_screenheight() // 2) - (height // 2)
+        date_window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        # Datumsauswahl
         start_date = datetime.strptime(self.metadaten['date_range']['start'], '%Y-%m-%d').date()
         end_date = datetime.strptime(self.metadaten['date_range']['end'], '%Y-%m-%d').date()
-
+        # Erstelle die Widgets
         ttk.Label(date_window, text="Startdatum:").grid(row=0, column=0, padx=5, pady=5)
         start_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
         start_picker.set_date(start_date)
         start_picker.grid(row=0, column=1, padx=5, pady=5)
-
         ttk.Label(date_window, text="Enddatum:").grid(row=1, column=0, padx=5, pady=5)
         end_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
         end_picker.set_date(end_date)
@@ -151,7 +160,7 @@ class UIComponents:
     def update_date_range(self, start_date, end_date, window):
         self.metadaten['date_range']['start'] = start_date.strftime('%Y-%m-%d')
         self.metadaten['date_range']['end'] = end_date.strftime('%Y-%m-%d')
-        self.date_range_label.config(text=self.get_date_range_text())
+        self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
         print(f"Neuer Datumsbereich: {self.metadaten['date_range']}")
         window.destroy()
 
@@ -169,9 +178,6 @@ class UIComponents:
 
     def datumsauswahl(self):
         print("Datumsauswahl angeklickt")
-
-    def dateiwatcher(self):
-        print("Dateiwatcher angeklickt")
 
     def hole_aktive_zeitreihen(self):
         return [(zr, self.zeitreihen_checkboxen[zr][2]) for zr in self.aktive_zeitreihen]
