@@ -1,6 +1,7 @@
 import tkinter as tk
 from datetime import datetime
 from tkinter import ttk
+from tkinter import messagebox
 import json
 
 from tkcalendar import DateEntry
@@ -22,7 +23,7 @@ class UIComponents:
         self.config_callback = config_callback
         self.end_session_callback = end_session_callback
         self.zeitreihen_checkboxen = {}
-        self.aktive_zeitreihen = []
+        self.aktive_zeitreihen = set()
         self.lade_metadaten()
         self.lade_farbschemata()
         self.lade_config()
@@ -74,8 +75,21 @@ class UIComponents:
     def update_plot(self):
         active_series = self.hole_aktive_zeitreihen()
         date_range = self.metadaten['date_range']
-        # Hier würden Sie die Plotting-Funktion aufrufen
+
+        if len(active_series) == 0:
+            messagebox.showinfo("Info", "Bitte wählen Sie mindestens eine Zeitreihe aus.")
+            return
+
+        start_date = datetime.strptime(date_range['start'], '%Y-%m-%d')
+        end_date = datetime.strptime(date_range['end'], '%Y-%m-%d')
+        date_diff = (end_date - start_date).days
+
+        if date_diff > 5:
+            messagebox.showinfo("Info", "Bitte wählen Sie einen Datumsbereich zwischen 1 bis 5 Tagen.")
+            return
+
         print(f"Aktualisiere Plot mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
+        # Hier würden Sie die Plotting-Funktion aufrufen
 
     def get_date_range_text(self):
         start = self.metadaten['date_range']['start']
@@ -152,7 +166,7 @@ class UIComponents:
 
     def aktualisiere_aktive_zeitreihen(self, intervall):
         if self.zeitreihen_checkboxen[intervall][1].get():
-            self.aktive_zeitreihen.append(intervall)
+            self.aktive_zeitreihen.add(intervall)
         else:
             self.aktive_zeitreihen.remove(intervall)
         print(f"Aktive Zeitreihen: {self.aktive_zeitreihen}")
@@ -172,12 +186,6 @@ class UIComponents:
             self.aktualisiere_aktive_zeitreihen(intervall)
 
         print("Alle Zeitreihen aktiviert" if not all_active else "Alle Zeitreihen deaktiviert")
-
-    def zeige_zeitreihe(self, zeitreihe):
-        print(f"Zeige Zeitreihe: {zeitreihe}")
-
-    def datumsauswahl(self):
-        print("Datumsauswahl angeklickt")
 
     def hole_aktive_zeitreihen(self):
         return [(zr, self.zeitreihen_checkboxen[zr][2]) for zr in self.aktive_zeitreihen]
