@@ -1,11 +1,16 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from PIL import Image, ImageTk
+from tkinter import filedialog, messagebox, ttk
 import json
 from modules.UIComponents import UIComponents
 from modules.DataImporter import DataImporter
 from modules.MetadataManager import MetadataManager
 from modules.ConfigWindow import ConfigWindow
+
+
+def lade_config():
+    with open('config/config.json', 'r') as f:
+        config = json.load(f)
+    return config
 
 
 class Application:
@@ -14,10 +19,9 @@ class Application:
         self.master.title("Zeitreihen-Visualisierungs-App")
         self.master.geometry("1200x800")
         self.center_window()
-        self.config = self.lade_config()
+        self.config = lade_config()
         self.metadata_manager = MetadataManager('metadata.json')
         self.data_importer = DataImporter(self.config)
-
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
         self.create_widgets()
 
@@ -30,15 +34,8 @@ class Application:
 
     def create_widgets(self):
         self.ui_components.erstelle_buttons()
-        self.ui_components.chart_label = tk.Label(self.master)
-        self.ui_components.chart_label.pack(expand=True, fill=tk.BOTH)
-        self.platzhalter_bild_anzeigen()
-
-    def lade_config(self):
-        with open('config/config.json', 'r') as f:
-            config = json.load(f)
-        config['delimiter'] = config['delimiter']
-        return config
+        self.ui_components.create_hyperlink_area()
+        self.ui_components.update_hyperlinks()
 
     def csv_import(self):
         file_paths = filedialog.askopenfilenames(filetypes=[("CSV files", "*.csv")])
@@ -62,21 +59,6 @@ class Application:
     def end_session(self):
         if messagebox.askyesno("Sitzung beenden", "Möchten Sie die Sitzung wirklich beenden?"):
             self.master.quit()
-
-    def platzhalter_bild_anzeigen(self):
-        placeholder_image = Image.open("charts_by_ki.jpg")
-        placeholder_photo = ImageTk.PhotoImage(placeholder_image)
-        self.ui_components.chart_label.config(image=placeholder_photo)
-        self.ui_components.chart_label.image = placeholder_photo
-
-    def update_chart(self):
-        # Ihre bestehende Logik zur Diagrammerstellung hier
-        chart_erstellt = False  # Diese Variable sollte auf True gesetzt werden, wenn ein Diagramm erstellt wurde
-        if chart_erstellt:
-            # Zeigen Sie das erstellte Diagramm an
-            pass
-        else:
-            self.platzhalter_bild_anzeigen()
 
 
 if __name__ == "__main__":
