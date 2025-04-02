@@ -15,6 +15,28 @@ def lade_json(datei_name):
         return json.load(json_file)
 
 class UIComponents:
+    """
+        Verwaltet die Benutzeroberflächen-Komponenten für die Zeitreihen-Visualisierungs-Anwendung.
+
+        Diese Klasse ist verantwortlich für die Erstellung und Verwaltung aller UI-Elemente,
+        einschließlich Buttons, Checkboxen für Zeitreihen, Datumswähler und Diagrammanzeige.
+        Sie handhabt auch die Interaktionen mit dem Benutzer und aktualisiert die Anzeige
+        basierend auf Benutzeraktionen und Datenänderungen.
+
+        Attribute:
+            master (tk.Tk): Das Hauptfenster der Anwendung.
+            csv_import_callback (function): Callback für CSV-Import.
+            config_callback (function): Callback für Konfigurationseinstellungen.
+            end_session_callback (function): Callback zum Beenden der Sitzung.
+
+        Methoden:
+            erstelle_buttons(): Erstellt die Hauptbuttons der Anwendung.
+            aktualisiere_intervalle(intervalle): Aktualisiert die Zeitreihen-Checkboxen.
+            update_plot(): Aktualisiert das angezeigte Diagramm.
+            open_date_picker(): Öffnet den Datumswähler.
+            zeige_alle(): Schaltet alle Zeitreihen-Checkboxen um.
+        """
+
     def __init__(self, master, csv_import_callback, config_callback, end_session_callback):
         # Initialisierung der Hauptkomponenten und Callbacks
         self.master = master
@@ -126,7 +148,7 @@ class UIComponents:
         markt_symbol = self.metadaten['symbols'][0]
 
         if len(active_series) == 0:
-            messagebox.showinfo("Info", "Bitte wählen Sie mindestens eine Zeitreihe aus.")
+            messagebox.showinfo("Info", f"Bitte wählen Sie mindestens eine Zeitreihe aus.")
             return
 
         start_date = datetime.strptime(date_range['start'], '%Y-%m-%d')
@@ -134,15 +156,16 @@ class UIComponents:
         date_diff = (end_date - start_date).days
 
         if date_diff > 5:
-            messagebox.showinfo("Info", "Bitte wählen Sie einen Datumsbereich zwischen 1 bis 5 Tagen.")
+            messagebox.showinfo("Info", "Bitte wählen Sie einen Datumsbereich zwischen 1 bis 5 Tagen.\nAktuell: " + str(date_diff) + " Tage")
             return
 
         chart_data = self.prepare_chart_data(active_series, date_range, markt_symbol)
         print(f"Aktualisiere Plot {markt_symbol} mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
 
         if len(chart_data) > 0:
-            chart_creator = PlotChartLine()
+            chart_creator = PlotChartLine(self.plot_dir)
             result_fig = chart_creator.create_chart(chart_data, date_range)
+            print(f"Daten: {result_fig[1]} / {result_fig[2]}")
             self.update_metaplot(result_fig[1], result_fig[2], date_range)
             result_fig[0].show()
         else:
@@ -210,46 +233,38 @@ class UIComponents:
                    command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=0, columnspan=2, pady=10)
 
     def aktualisiere_intervalle(self, intervalle):
-        # Aktualisieren der Intervall-Checkboxen
-        lade_json('config/config.json')
-        selected_scheme = self.config_color_schemes
-        print(f"Farbschemata neu: {selected_scheme}")
-        colors = self.farbschemata['schemes'][selected_scheme]['colors']
+        # Aktualisiert die Intervall-Checkboxen durch Löschen und Neuerstellen.
+        self.config = lade_json('config/config.json')
+        self.config_color_schemes = self.config['color_scheme']
+        print(f"Farbschemata neu: {self.config_color_schemes}")
+        self.metadaten['available_intervals'] = intervalle
 
-        for intervall in intervalle:
-            farbe = colors.get(intervall, '#000000')
-            style = ttk.Style()
-            style.configure(f'{intervall}.TCheckbutton', background=farbe)
+        # Lösche alle bestehenden Checkboxen
+        for cb, _, _ in self.zeitreihen_checkboxen.values():
+            cb.destroy()
+        self.zeitreihen_checkboxen.clear()
+        # Erstelle die Checkboxen neu
+        self.erstelle_intervall_checkboxen()
 
-            if intervall not in self.zeitreihen_checkboxen:
-                var = tk.BooleanVar()
-                cb = ttk.Checkbutton(self.timeseries_frame, text=intervall, variable=var,
-                                     command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i),
-                                     style=f'{intervall}.TCheckbutton')
-                cb.pack(side=tk.LEFT, padx=5)
-                self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
-            else:
-                cb, var, _ = self.zeitreihen_checkboxen[intervall]
-                cb.configure(style=f'{intervall}.TCheckbutton')
-                self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
+        # Aktualisiere die Anzeige
+        self.master.update()
 
     def erstelle_intervall_checkboxen(self):
-        # Erstellen der Intervall-Checkboxen
-        lade_json('config/config.json')
-        selected_scheme = self.config_color_schemes
-        print(f"Farbschemata alt: {selected_scheme}")
-        colors = self.farbschemata['schemes'][selected_scheme]['colors']
+        #Erstellt die Intervall-Checkboxen mit aktualisierten Farben
+        colors = self.farbschemata['schemes'][self.config_color_schemes]['colors']
 
         for intervall in self.metadaten['available_intervals']:
             var = tk.BooleanVar()
             farbe = colors.get(intervall, '#000000')
-            style = ttk.Style()
-            style.configure(f'{intervall}.TCheckbutton', background=farbe)
-            cb = ttk.Checkbutton(self.timeseries_frame, text=intervall, variable=var,
-                                 command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i),
-                                 style=f'{intervall}.TCheckbutton')
+            cb = tk.Checkbutton(self.timeseries_frame,
+                                text=intervall,
+                                variable=var,
+                                command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i),
+                                bg=farbe)
             cb.pack(side=tk.LEFT, padx=5)
             self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
+
+        print("Intervall-Checkboxen neu erstellt")
 
     def aktualisiere_aktive_zeitreihen(self, intervall):
         # Aktualisieren der aktiven Zeitreihen
