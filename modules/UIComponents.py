@@ -1,4 +1,3 @@
-import hashlib
 import tkinter as tk
 from datetime import datetime
 from tkinter import ttk
@@ -8,20 +7,23 @@ import json
 import os
 from PIL import Image, ImageTk
 from tkcalendar import DateEntry
-from tkhtmlview import HTMLLabel
-
 from modules.PlotChartLine import PlotChartLine
 
+# Hilfsfunktion zum Laden von JSON-Dateien
+def lade_json(datei_name):
+    with open(datei_name, 'r') as json_file:
+        return json.load(json_file)
 
 class UIComponents:
     def __init__(self, master, csv_import_callback, config_callback, end_session_callback):
-        # Main window and callbacks
+        # Initialisierung der Hauptkomponenten und Callbacks
         self.master = master
         self.csv_import_callback = csv_import_callback
         self.config_callback = config_callback
         self.end_session_callback = end_session_callback
 
-        # UI elements
+        # UI-Elemente
+        self.chart_frame = None
         self.chart_label = None
         self.alle_anzeigen_button = None
         self.date_range_label = None
@@ -30,40 +32,24 @@ class UIComponents:
         self.hyperlink_label = None
         self.hyperlink_frame = None
 
-        # Data and configuration
+        # Daten und Konfiguration
+        self.plot_dir = os.path.abspath("./plots")
+        self.metaplot_path = os.path.abspath("./metaplot.json")
         self.farbschemata = None
-        self.metadaten = None
+        self.metadaten = {"available_intervals": []}
         self.config = None
         self.config_color_schemes = None
         self.zeitreihen_checkboxen = {}
         self.aktive_zeitreihen = set()
 
-        # Initialization
-        self.lade_metadaten()
-        self.lade_farbschemata()
-        self.lade_config()
-
-    def lade_config(self):
-        # Load configuration from JSON file
-        with open('config/config.json', 'r') as f:
-            self.config = json.load(f)
-            self.config_color_schemes = self.config['color_scheme']
-
-    def lade_metadaten(self):
-        # Load metadata from JSON file
-        try:
-            with open('metadata.json', 'r') as f:
-                self.metadaten = json.load(f)
-        except FileNotFoundError:
-            self.metadaten = {"available_intervals": []}
-
-    def lade_farbschemata(self):
-        # Load color schemes from JSON file
-        with open('resources/color_schemes.json', 'r') as f:
-            self.farbschemata = json.load(f)
+        # Laden der Konfigurationen und Metadaten
+        self.config = lade_json(os.path.abspath('./config/config.json'))
+        self.config_color_schemes = self.config['color_scheme']
+        self.metadaten = lade_json(os.path.abspath('./metadata.json'))
+        self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
 
     def erstelle_buttons(self):
-        # Create main buttons and UI elements
+        # Erstellen der Hauptbuttons und UI-Elemente
         button_frame = ttk.Frame(self.master)
         button_frame.pack(fill=tk.X, padx=10, pady=5)
 
@@ -77,14 +63,17 @@ class UIComponents:
             btn = ttk.Button(button_frame, text=text, command=command)
             btn.pack(side=tk.LEFT, padx=5)
 
+        # Anzeige des aktuellen Datumsbereichs
         self.date_range_label = ttk.Label(button_frame, text=self.get_date_range_text())
         self.date_range_label.pack(side=tk.LEFT, padx=5)
 
+        # Erstellung des "Sitzung beenden" Buttons
         style = ttk.Style()
         style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
         end_session_btn = ttk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback, style="Red.TButton")
         end_session_btn.pack(side=tk.RIGHT, padx=5)
 
+        # Erstellung des Rahmens für Zeitreihen-Checkboxen
         self.timeseries_frame = ttk.Frame(self.master)
         self.timeseries_frame.pack(fill=tk.X, padx=10, pady=5)
         self.alle_anzeigen_button = ttk.Button(self.timeseries_frame, text="Alle anzeigen", command=self.zeige_alle)
@@ -94,7 +83,7 @@ class UIComponents:
         self.erstelle_intervall_checkboxen()
 
     def platzhalter_bild_anzeigen(self):
-        # Display placeholder image
+        # Anzeigen eines Platzhalterbildes, wenn kein Chart verfügbar ist
         placeholder_image = Image.open("charts_by_ki.jpg")
         placeholder_photo = ImageTk.PhotoImage(placeholder_image)
         placeholder_label = ttk.Label(self.chart_frame, image=placeholder_photo)
@@ -102,18 +91,20 @@ class UIComponents:
         placeholder_label.pack(fill="both", expand=True)
 
     def get_plot_files(self):
-        plot_dir = "./plots"
-        if not os.path.exists(plot_dir):
-            os.makedirs(plot_dir)
-        return [f for f in os.listdir(plot_dir) if f.endswith('.html')]
+        # Abrufen der verfügbaren Plot-Dateien
+        if not os.path.exists(self.plot_dir):
+            os.makedirs(self.plot_dir)
+        return [f for f in os.listdir(self.plot_dir) if f.endswith('.html')]
 
     def create_hyperlink_area(self):
+        # Erstellen des Bereichs für Hyperlinks zu verfügbaren Plots
         self.hyperlink_frame = ttk.Frame(self.master)
         self.hyperlink_frame.pack(fill=tk.X, padx=10, pady=5)
         self.hyperlink_label = ttk.Label(self.hyperlink_frame, text="Verfügbare Plots:")
         self.hyperlink_label.pack(side=tk.LEFT, padx=5)
 
     def update_hyperlinks(self):
+        # Aktualisieren der Hyperlinks zu verfügbaren Plots
         plot_files = self.get_plot_files()
         for widget in self.hyperlink_frame.winfo_children()[1:]:
             widget.destroy()
@@ -123,11 +114,13 @@ class UIComponents:
             link.bind("<Button-1>", lambda e, pf=plot_file: self.open_plot(pf))
 
     def open_plot(self, plot_file):
+        # Öffnen eines ausgewählten Plots im Webbrowser
+        self.update_hyperlinks()
         import webbrowser
         webbrowser.open(os.path.join("plots", plot_file))
 
     def update_plot(self):
-        # Update the plot based on selected time series and date range
+        # Aktualisieren des Plots basierend auf ausgewählten Zeitreihen und Datumsbereich
         active_series = self.hole_aktive_zeitreihen()
         date_range = self.metadaten['date_range']
         markt_symbol = self.metadaten['symbols'][0]
@@ -156,7 +149,7 @@ class UIComponents:
             self.platzhalter_bild_anzeigen()
 
     def prepare_chart_data(self, active_series, date_range, symbol):
-        # Prepare data for chart creation
+        # Vorbereiten der Daten für die Charterstellung
         datum_von = pd.to_datetime(date_range['start'], format='%Y-%m-%d')
         datum_bis = pd.to_datetime(date_range['end'], format='%Y-%m-%d')
 
@@ -182,13 +175,13 @@ class UIComponents:
         return chart_data_list
 
     def get_date_range_text(self):
-        # Get formatted date range text
+        # Formatieren des Datumsbereich-Texts
         start = self.metadaten['date_range']['start']
         end = self.metadaten['date_range']['end']
         return f"Datumsbereich: {start} - {end}"
 
     def open_date_picker(self):
-        # Open date picker window
+        # Öffnen des Datumsauswahl-Fensters
         date_window = tk.Toplevel(self.master)
         date_window.title("Datumsauswahl")
 
@@ -217,8 +210,8 @@ class UIComponents:
                    command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=0, columnspan=2, pady=10)
 
     def aktualisiere_intervalle(self, intervalle):
-        # Update interval checkboxes
-        self.lade_config()
+        # Aktualisieren der Intervall-Checkboxen
+        lade_json('config/config.json')
         selected_scheme = self.config_color_schemes
         print(f"Farbschemata neu: {selected_scheme}")
         colors = self.farbschemata['schemes'][selected_scheme]['colors']
@@ -241,8 +234,8 @@ class UIComponents:
                 self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
 
     def erstelle_intervall_checkboxen(self):
-        # Create interval checkboxes
-        self.lade_config()
+        # Erstellen der Intervall-Checkboxen
+        lade_json('config/config.json')
         selected_scheme = self.config_color_schemes
         print(f"Farbschemata alt: {selected_scheme}")
         colors = self.farbschemata['schemes'][selected_scheme]['colors']
@@ -259,7 +252,7 @@ class UIComponents:
             self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
 
     def aktualisiere_aktive_zeitreihen(self, intervall):
-        # Update active time series set
+        # Aktualisieren der aktiven Zeitreihen
         if self.zeitreihen_checkboxen[intervall][1].get():
             self.aktive_zeitreihen.add(intervall)
         else:
@@ -267,7 +260,7 @@ class UIComponents:
         print(f"Aktive Zeitreihen: {self.aktive_zeitreihen}")
 
     def update_date_range(self, start_date, end_date, window):
-        # Update date range and close date picker window
+        # Aktualisieren des Datumsbereichs und Schließen des Datumsauswahl-Fensters
         self.metadaten['date_range']['start'] = start_date.strftime('%Y-%m-%d')
         self.metadaten['date_range']['end'] = end_date.strftime('%Y-%m-%d')
         self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
@@ -275,7 +268,7 @@ class UIComponents:
         window.destroy()
 
     def zeige_alle(self):
-        # Toggle all time series checkboxes
+        # Umschalten aller Zeitreihen-Checkboxen
         all_active = all(self.zeitreihen_checkboxen[intervall][1].get() for intervall in self.zeitreihen_checkboxen)
 
         for intervall, (cb, var, _) in self.zeitreihen_checkboxen.items():
@@ -285,12 +278,13 @@ class UIComponents:
         print("Alle Zeitreihen aktiviert" if not all_active else "Alle Zeitreihen deaktiviert")
 
     def hole_aktive_zeitreihen(self):
+        # Gibt die Liste der aktiven Zeitreihen mit ihren Farben zurück
         return [(zr, self.zeitreihen_checkboxen[zr][2]) for zr in self.aktive_zeitreihen]
 
     def update_metaplot(self, hash_value, titel, date_range):
-        metaplot_path = "./metaplot.json"
-        if os.path.exists(metaplot_path):
-            with open(metaplot_path, "r") as f:
+        # Aktualisiert die Metaplot-Daten in einer JSON-Datei
+        if os.path.exists(self.metaplot_path):
+            with open(self.metaplot_path, "r") as f:
                 metaplot_data = json.load(f)
         else:
             metaplot_data = {}
@@ -301,5 +295,5 @@ class UIComponents:
             "end_date": date_range['end']
         }
 
-        with open(metaplot_path, "w") as f:
+        with open(self.metaplot_path, "w") as f:
             json.dump(metaplot_data, f, indent=4)
