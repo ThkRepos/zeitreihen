@@ -1,14 +1,14 @@
 # modules/ConfigWindow.py
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import messagebox, ttk
 import json
 
 
 class ConfigWindow:
     def __init__(self, master, update_callback):
+        self.window_y_entry = None
+        self.window_x_entry = None
         self.color_scheme_dropdown = None
-        self.interval_entry = None
-        self.folder_entry = None
         self.date_format_entry = None
         self.columns_entry = None
         self.delimiter_entry = None
@@ -32,28 +32,28 @@ class ConfigWindow:
         tk.Label(self.window, text="CSV-Trennzeichen:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.delimiter_entry = tk.Entry(self.window, width=60)  # Breiter
         self.delimiter_entry.grid(row=0, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.delimiter_entry.insert(0, ",")
+        self.delimiter_entry.insert(0, "\t")
 
         tk.Label(self.window, text="Spaltennamen:").grid(row=1, column=0, sticky="w", padx=5, pady=5)
         self.columns_entry = tk.Entry(self.window, width=60)  # Breiter
         self.columns_entry.grid(row=1, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.columns_entry.insert(0, "Datum,Open,High,Low,Close,Volume")
+        self.columns_entry.insert(0, "DATE,TIME,OPEN,HIGH,LOW,CLOSE,TICKVOL,VOL,SPREAD")
 
         tk.Label(self.window, text="Datumsformat:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
         self.date_format_entry = tk.Entry(self.window, width=60)  # Breiter
         self.date_format_entry.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.date_format_entry.insert(0, "%Y-%m-%d %H:%M:%S")
+        self.date_format_entry.insert(0, "%Y.%m.%d %H:%M:%S")
 
-        # Dateiwatcher-Einstellungen
-        tk.Label(self.window, text="Überwachter Ordner:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
-        self.folder_entry = tk.Entry(self.window, width=60)  # Breiter
-        self.folder_entry.grid(row=3, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        tk.Button(self.window, text="Durchsuchen", command=self.browse_folder, bg='orange').grid(row=3, column=3, padx=5, pady=5)
+        # Startfenster-Breite
+        tk.Label(self.window, text="Startfenster Breite / Länge:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
+        self.window_x_entry = tk.Entry(self.window, width=20)
+        self.window_x_entry.grid(row=3, column=1, columnspan=1, padx=5, pady=5, sticky="ew")
+        self.window_x_entry.insert(0, "1200")
 
-        tk.Label(self.window, text="Aktualisierungsintervall (s):").grid(row=4, column=0, sticky="w", padx=5, pady=5)
-        self.interval_entry = tk.Entry(self.window, width=60)  # Breiter
-        self.interval_entry.grid(row=4, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
-        self.interval_entry.insert(0, "60")
+        # Startfenster-Länge
+        self.window_y_entry = tk.Entry(self.window, width=20)
+        self.window_y_entry.grid(row=3, column=2, columnspan=1, padx=5, pady=5, sticky="ew")
+        self.window_y_entry.insert(0, "800")
 
         # Buttons
         button_frame = tk.Frame(self.window)
@@ -87,19 +87,14 @@ class ConfigWindow:
     def close_clicked(self):
         self.window.destroy()
 
-    def browse_folder(self):
-        folder = filedialog.askdirectory()
-        self.folder_entry.delete(0, tk.END)
-        self.folder_entry.insert(0, folder)
-
     def save_config(self):
         config = {
             "delimiter": self.delimiter_entry.get(),
             "columns": self.columns_entry.get().split(","),
             "date_format": self.date_format_entry.get(),
-            "watch_folder": self.folder_entry.get(),
-            "update_interval": int(self.interval_entry.get()),
-            "color_scheme": self.color_scheme_var.get()
+            "color_scheme": self.color_scheme_var.get(),
+            "window_y": self.window_y_entry.get(),
+            "window_x": self.window_x_entry.get()
         }
 
         with open("config/config.json", "w") as f:
@@ -123,11 +118,11 @@ class ConfigWindow:
             self.date_format_entry.delete(0, tk.END)
             self.date_format_entry.insert(0, config["date_format"])
 
-            self.folder_entry.delete(0, tk.END)
-            self.folder_entry.insert(0, config["watch_folder"])
+            self.window_x_entry.delete(0, tk.END)
+            self.window_x_entry.insert(0, config["window_x"])
 
-            self.interval_entry.delete(0, tk.END)
-            self.interval_entry.insert(0, str(config["update_interval"]))
+            self.window_y_entry.delete(0, tk.END)
+            self.window_y_entry.insert(0, config["window_y"])
 
             if "color_scheme" in config:
                 self.color_scheme_var.set(config["color_scheme"])
@@ -138,14 +133,15 @@ class ConfigWindow:
 
     def reset_fields(self):
         self.delimiter_entry.delete(0, tk.END)
-        self.delimiter_entry.insert(0, "\t")
+        self.delimiter_entry.insert(0, "\\t")
         self.columns_entry.delete(0, tk.END)
         self.columns_entry.insert(0, "DATE,TIME,OPEN,HIGH,LOW,CLOSE,TICKVOL,VOL,SPREAD")
         self.date_format_entry.delete(0, tk.END)
         self.date_format_entry.insert(0, "%Y.%m.%d %H:%M:%S")
-        self.folder_entry.delete(0, tk.END)
-        self.interval_entry.delete(0, tk.END)
-        self.interval_entry.insert(0, "60")
+        self.window_x_entry.delete(0, tk.END)
+        self.window_x_entry.insert(0, "1200")
+        self.window_y_entry.delete(0, tk.END)
+        self.window_y_entry.insert(0, "800")
 
     def center_window(self):
         self.window.update_idletasks()

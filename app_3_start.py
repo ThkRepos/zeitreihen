@@ -7,30 +7,34 @@ from modules.MetadataManager import MetadataManager
 from modules.ConfigWindow import ConfigWindow
 
 
-def lade_config():
-    with open('config/config.json', 'r') as f:
-        config = json.load(f)
-    return config
-
-
 class Application:
     def __init__(self, master):
+        self.window_x = 1200
+        self.window_y = 800
+        self.config = self.lade_config()
+        self.metadata_manager = MetadataManager('metadata.json')
         self.master = master
         self.master.title("Zeitreihen-Visualisierungs-App")
-        self.master.geometry("1200x800")
+        self.master.geometry(f"{self.window_x}x{self.window_y}")
         self.center_window()
-        self.config = lade_config()
-        self.metadata_manager = MetadataManager('metadata.json')
+
         self.data_importer = DataImporter(self.config)
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
         self.create_widgets()
 
+    def lade_config(self):
+        with open('config/config.json', 'r') as config_file:
+            config = json.load(config_file)
+            self.window_x = config['window_x']
+            self.window_y = config['window_y']
+        return config
+
     def center_window(self):
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
-        x = (screen_width - 1200) // 2
-        y = (screen_height - 800) // 2
-        self.master.geometry(f"1200x800+{x}+{y}")
+        x = (screen_width - int(self.window_x)) // 2
+        y = (screen_height - int(self.window_y)) // 2
+        self.master.geometry(f"{self.window_x}x{self.window_y}+{x}+{y}")
 
     def create_widgets(self):
         self.ui_components.erstelle_buttons()
