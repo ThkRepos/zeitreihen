@@ -31,6 +31,7 @@ class Application:
         self.color_schemes_path = os.path.abspath('resources/color_schemes.json')
         self.config_path = os.path.abspath('config/config.json')
         self.metadata_path = os.path.abspath('metadata.json')
+        self.metaplot_path = os.path.abspath("metaplot.json")
         self.window_x = 1200
         self.window_y = 800
         self.config = self.lade_config()
@@ -44,8 +45,8 @@ class Application:
         self.create_widgets()
         self.show_platzhalter()
 
-    def lade_config(self):
-        # Überprüfe und erstelle die Konfigurationsdatei, falls sie nicht existiert
+    def erster_init(self):
+        # Erstelle config.json
         if not os.path.exists(self.config_path):
             default_config = {
                 "window_x": 1200,
@@ -58,7 +59,7 @@ class Application:
             with open(self.config_path, 'w') as config_file:
                 json.dump(default_config, config_file, indent=4)
 
-        # Überprüfe und erstelle die Metadaten-Datei, falls sie nicht existiert
+        # Erstelle metadata.json
         if not os.path.exists(self.metadata_path):
             default_metadata = {
                 "available_intervals": [],
@@ -68,7 +69,16 @@ class Application:
             with open(self.metadata_path, 'w') as metadata_file:
                 json.dump(default_metadata, metadata_file, indent=4)
 
-        # Lade die Konfiguration
+        # Erstelle metaplot.json
+        metaplot_path = os.path.abspath("./metaplot.json")
+        if not os.path.exists(metaplot_path):
+            with open(metaplot_path, 'w') as metaplot_file:
+                json.dump({}, metaplot_file)
+
+    def lade_config(self):
+        if not os.path.exists(self.config_path):
+            self.erster_init()
+
         with open(self.config_path, 'r') as config_file:
             config = json.load(config_file)
             self.window_x = config.get('window_x', 1200)
