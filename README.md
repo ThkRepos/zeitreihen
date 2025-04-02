@@ -176,7 +176,7 @@ Die App verarbeitet tab-getrennte CSV-Dateien mit folgendem Namensformat:
 ### Hauptfenster
 - Größe: 1200x800 Pixel (skalierbar)
 - Können Sie über die Einstellungen anpassen
-- Layout: Grid-System mit 4 Hauptbereichen
+- Layout: Grid-System
 
 ### Steuerungspanel
 - Dateiauswahl-Upload
