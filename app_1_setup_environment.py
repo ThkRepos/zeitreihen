@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import os
 import sys
 import subprocess
@@ -70,7 +69,7 @@ def erstelle_startskript():
         print("Startskript 'start_app.sh' wurde erstellt.")
 
 
-def prüfe_tkinter():
+def teste_tkinter():
     """Prüft, ob tkinter in der virtuellen Umgebung verfügbar ist."""
     python_interpreter = hole_venv_python()
     try:
@@ -100,7 +99,7 @@ def main():
     try:
         erstelle_venv()
         installiere_anforderungen()
-        tkinter_ok = prüfe_tkinter()
+        tkinter_ok = teste_tkinter()
         erstelle_startskript()
 
         print("\n=== Einrichtung erfolgreich abgeschlossen! ===")
