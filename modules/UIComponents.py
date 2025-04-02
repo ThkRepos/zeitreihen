@@ -111,34 +111,48 @@ class UIComponents:
         return [f for f in os.listdir(self.plot_dir) if f.endswith('.html')]
 
     def create_hyperlink_area(self):
-        # Füge einen Separator oberhalb des hyperlink_frame hinzu
         separator = ttk.Separator(self.master, orient='horizontal')
         separator.pack(fill='x', pady=(5, 0))
-        # Erstellen des Bereichs für Hyperlinks zu verfügbaren Plots
+
         self.hyperlink_frame = ttk.Frame(self.master)
         self.hyperlink_frame.pack(fill=tk.X, padx=10, pady=5)
-        self.hyperlink_label = ttk.Label(self.hyperlink_frame, text="Verfügbare Plots:")
-        self.hyperlink_label.pack(side=tk.LEFT, padx=5)
+
+        self.hyperlink_label = ttk.Label(self.hyperlink_frame, text="Verfügbare Plots / Aktueller:", font=("Arial", 12, "bold"))
+        self.hyperlink_label.grid(row=0, column=0, sticky='w', padx=5, pady=(0, 5))
+
+        self.latest_plot_link = ttk.Label(self.hyperlink_frame, text="", foreground="blue", cursor="hand2")
+        self.latest_plot_link.grid(row=0, column=1, sticky='w', padx=5, pady=(0, 5))
+
+        self.links_frame = ttk.Frame(self.hyperlink_frame)
+        self.links_frame.grid(row=1, column=0, columnspan=2, sticky='nsew')
 
     def update_hyperlinks(self):
-        # Laden der metaplot.json Daten
         with open(self.metaplot_path, 'r') as f:
             metaplot_data = json.load(f)
 
-        # Aktualisieren der Hyperlinks zu verfügbaren Plots
         plot_files = self.get_plot_files()
-        for widget in self.hyperlink_frame.winfo_children()[1:]:
+
+        # Finde den aktuellsten Plot
+        latest_plot = max(metaplot_data.values(), key=lambda x: x['erstellt_am'], default=None)
+        if latest_plot:
+            latest_title = latest_plot['titel']
+            latest_hash = next(hash for hash, data in metaplot_data.items() if data == latest_plot)
+            self.latest_plot_link.config(text=f"{latest_title}", foreground="brown", font=("Arial", 10, "bold"), cursor="hand2")
+            self.latest_plot_link.bind("<Button-1>", lambda e, pf=f"{latest_hash}.html": self.open_plot(pf))
+            self.latest_plot_link.bind("<Enter>", lambda e: self.latest_plot_link.configure(foreground="orange"))
+            self.latest_plot_link.bind("<Leave>", lambda e: self.latest_plot_link.configure(foreground="blue"))
+        else:
+            self.latest_plot_link.config(text="(Keine Plots verfügbar)")
+
+        for widget in self.links_frame.winfo_children():
             widget.destroy()
 
-        for plot_file in plot_files:
-            hash_value = plot_file.split('.')[0]  # Entfernen der .html Erweiterung
-            if hash_value in metaplot_data:
-                title = metaplot_data[hash_value]['titel']
-            else:
-                title = plot_file  # Fallback auf den Dateinamen, falls kein Eintrag gefunden
+        for i, plot_file in enumerate(plot_files):
+            hash_value = plot_file.split('.')[0]
+            title = metaplot_data.get(hash_value, {}).get('titel', plot_file)
 
-            link = ttk.Label(self.hyperlink_frame, text=title, foreground="blue", cursor="hand2")
-            link.pack(side=tk.LEFT, padx=5)
+            link = ttk.Label(self.links_frame, text=title, foreground="blue", cursor="hand2")
+            link.grid(row=i // 2, column=i % 2, padx=5, pady=2, sticky='w')
             link.bind("<Button-1>", lambda e, pf=plot_file: self.open_plot(pf))
             link.bind("<Enter>", lambda e, l=link: l.configure(foreground="orange"))
             link.bind("<Leave>", lambda e, l=link: l.configure(foreground="blue"))
@@ -325,7 +339,8 @@ class UIComponents:
         metaplot_data[hash_value] = {
             "titel": titel,
             "start_date": date_range['start'],
-            "end_date": date_range['end']
+            "end_date": date_range['end'],
+            "erstellt_am": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
 
         with open(self.metaplot_path, "w") as f:
