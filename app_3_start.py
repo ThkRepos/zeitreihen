@@ -42,7 +42,7 @@ class Application:
         self.data_importer = DataImporter(self.config)
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
         self.create_widgets()
-        self.show_placeholder_image()
+        self.show_platzhalter()
 
     def lade_config(self):
         # Laden der Konfigurationsdatei
@@ -60,7 +60,8 @@ class Application:
         y = (screen_height - int(self.window_y)) // 2
         self.master.geometry(f"{self.window_x}x{self.window_y}+{x}+{y}")
 
-    def show_placeholder_image(self):
+    def show_platzhalter(self):
+        # Anzeigen eines Platzhalterbildes
         placeholder_image = Image.open("charts_by_ki.jpg")
         placeholder_photo = ImageTk.PhotoImage(placeholder_image)
         self.placeholder_label = ttk.Label(self.master, image=placeholder_photo)
