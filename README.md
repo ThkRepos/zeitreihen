@@ -1,6 +1,6 @@
 # Zeitreihen-Visualisierungs-App
 
-Eine interaktive Anwendung zur Visualisierung und Analyse von Zeitreihen-Finanzdaten mit Unterstützung für mehrere Zeiteinheiten und optionaler Live-Daten-Integration.
+Eine interaktive Anwendung zur Visualisierung und Analyse von Zeitreihen-Finanzdaten mit Unterstützung für mehrere Zeiteinheiten und zukünftiger Live-Daten-Integration.
 
 ![Zeitreihen-Visualisierungs-App](C:\AlfaKurse\Python\App\charts_by_ki.jpg)
 ++ Quelle: Bild mit Microsoft Ki-Bildgenerator ++
@@ -35,7 +35,7 @@ Diese App ermöglicht die Visualisierung von Finanz-Zeitreihen (M1 bis M30) in e
 
 ## Funktionen
 
-- **Visualisierung mehrerer Zeiteinheiten**: Gleichzeitige Darstellung von M1, M2, M3, M4, M5, M6, M10, M12, M15, M20 und M30 Zeitreihen in einem Chart
+- **Visualisierung mehrerer Zeiteinheiten**: Gleichzeitige Darstellung von M1, M2, M3, M4, M5, M6, M10, M12, M15, M20 und M30 (weitere sollten möglich sein) Zeitreihen in einem Chart
 - **Interaktive Charts**: Zoomen, Schwenken und Hover-Informationen mittels Plotly
 - **Flexible Datumsfilterung**: Auswahl beliebiger Zeiträume innerhalb der Datenverfügbarkeit
 - **Anpassbare Farbschemata**: Drei vordefinierte Farbschemata zur visuellen Unterscheidung der Zeitreihen
@@ -57,12 +57,13 @@ Die einfachste Methode zur Installation ist die Verwendung unseres Setup-Skripts
 1. Klonen oder laden Sie das Repository herunter
 2. Öffnen Sie ein Terminal/Kommandozeile im Projektverzeichnis
 3. Führen Sie folgenden Befehl aus:
+4. Unter Window starten Sie die setup.bat Datei für eine automatische Installation
 
 ```bash
-python app_1_setup.py
+python app_1_setup_environment.py
 ```
 
-4. Nach Abschluss der Installation können Sie die Anwendung mit einem der generierten Startskripte starten:
+5. Nach Abschluss der Installation können Sie die Anwendung mit einem der generierten Startskripte starten:
 
 - **Windows**: Doppelklick auf `start_app.bat` oder im Terminal: `start_app.bat`
 - **macOS/Linux**: Im Terminal: `./start_app.sh`
@@ -127,10 +128,9 @@ Nach dem Start der Anwendung:
 1. Laden Sie über den Datei-Upload ihre Zeitreihen-Daten hoch - Schema weiter unten beachten
 2. Setzen Sie nach dem Upload Ihrer Daten den gewünschten Zeitraum mit dem Datumsfilter
 3. Aktivieren Sie die Zeiteinheiten, die Sie visualisieren möchten (M1-M30)
-4. Wählen Sie ein Farbschema für die Darstellung
-5. Nutzen Sie die interaktiven Funktionen des Charts (Zoomen, Schwenken, Hover)
-6. Optional: Nur Live-Daten verwenden für Echtzeit-Updates zeitversetzt um 1 Minute
-7. Bei Bedarf exportieren Sie das Diagramm als Bild oder HTML
+4. Wählen Sie ein Farbschema über den Button Einstellungen für Ihre persönliche Darstellung
+5. Nutzen Sie die interaktiven Funktionen des Charts wird im Browser angezeigt (Zoomen, Schwenken, Hover)
+6. Bei Bedarf exportieren Sie das Diagramm als Bild oder HTML
 
 ## Datenformat
 
@@ -175,29 +175,22 @@ Die App verarbeitet tab-getrennte CSV-Dateien mit folgendem Namensformat:
 
 ### Hauptfenster
 - Größe: 1200x800 Pixel (skalierbar)
+- Können Sie über die Einstellungen anpassen
 - Layout: Grid-System mit 4 Hauptbereichen
 
 ### Steuerungspanel
 - Dateiauswahl-Upload
 - Datumsauswahl mit Zeitfiltern
-- Farbschema-Auswahl
-- Live-Daten-Aktivierung
-- Export-Optionen
+- Einstellungen für den Importvorgang und die Farben
 
 ### Zeiteinheiten-Panel
 - Checkboxen für M1, M2, M3, M4, M5, M6, M10, M12, M15, M20, M30 Zeiteinheiten
 - Farblich kodierte Labels
 - Auswahl/Abwahl-alle Optionen
 
-### Chart-Bereich
-- Interaktives Plotly-Liniendiagramm
-- Mehrere Zeitreihen mit farblicher Unterscheidung
-- Dynamische Legende
-
-### Statusleiste
-- Aktuelle Datei und Zeitraum
-- Cache-Status
-- Verbindungsstatus (für Live-Daten)
+### Frame-Bereich
+- Anzeige der erstellten Charts zum Öffnen über den Browser
+- Dynamische Legende über die erstellten Charts
 
 ## Farbschemata
 
@@ -248,8 +241,8 @@ Die Farbschemata sind in der Datei `resources/color_schemes.json` definiert und 
 
 Die App unterstützt die Integration von Live-Daten, wodurch Echtzeit-Updates zu den visualisierten Zeitreihen möglich sind.
 
-### Unterstützte Datenquellen
-- Lokaler Dateiwatcher
+### Unterstützte Datenquellen sollen sein
+- Lokaler Datei-Watcher
 - Websocket-Verbindung zukünftige Entwicklung
 - REST API-Polling zukünftige Entwicklung
 
@@ -297,20 +290,21 @@ Für jede CSV-Datei wird eine entsprechende JSON-Metadatendatei erstellt:
 
 ```
 zeitreihen-app/
-├── app_3_start.py                    # Hauptanwendungsdatei
 ├── README.md                         # Diese Dokumentation
-├── requirements.txt                  # Abhängigkeiten
 ├── app_1_setup.py                    # Einrichtungsskript (virtuelle Umgebung)
 ├── app_2_install_dependencies.py     # Hilfsskript zur Installation von Abhängigkeiten
+├── app_3_start.py                    # Hauptanwendungsdatei
+├── requirements.txt                  # Abhängigkeiten
 ├── start_app.bat                     # Startskript für Windows (generiert)
 ├── start_app.sh                      # Startskript für macOS/Linux (generiert)
 ├── config/
-│   └── settings.json                 # Allgemeine App-Einstellungen
+│   └── config.json                   # Allgemeine App-Einstellungen
 ├── modules/
-│   ├── data_manager.py               # CSV-Einlesung, Caching, Datentransformation
-│   ├── plotly_visualizer.py          # Plotly-Integration, Chart-Erstellung
-│   ├── live_data_handler.py          # Handling von Live-Daten-Streams
-│   └── ui_components.py              # Tkinter-UI-Komponenten
+│   ├── ConfigWindow.py               # CSV-Einlesung, Caching, Datentransformation
+│   ├── DataImporter.py               # Verarbeitung der CSV-Dateien
+│   ├── MetadataManager.py            # Handling von spezifischen Metadaten
+│   ├── PlotChartline.py              # Plotly-Integration, Chart-Erstellung
+│   └── UIComponents.py               # Tkinter-UI-Komponenten
 ├── cache/
 │   ├── data/                         # Gespeicherte CSV-Dateien
 │   └── meta/                         # Metadaten-JSON-Dateien
