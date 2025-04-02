@@ -45,11 +45,35 @@ class Application:
         self.show_platzhalter()
 
     def lade_config(self):
-        # Laden der Konfigurationsdatei
+        # Überprüfe und erstelle die Konfigurationsdatei, falls sie nicht existiert
+        if not os.path.exists(self.config_path):
+            default_config = {
+                "window_x": 1200,
+                "window_y": 800,
+                "color_scheme": "default",
+                "delimiter": "\t",
+                "columns": ["DATE", "TIME", "OPEN", "HIGH", "LOW", "CLOSE", "TICKVOL", "VOL", "SPREAD"],
+                "date_format": "%Y.%m.%d %H:%M:%S"
+            }
+            with open(self.config_path, 'w') as config_file:
+                json.dump(default_config, config_file, indent=4)
+
+        # Überprüfe und erstelle die Metadaten-Datei, falls sie nicht existiert
+        if not os.path.exists(self.metadata_path):
+            default_metadata = {
+                "available_intervals": [],
+                "symbols": [],
+                "date_range": {"start": "", "end": ""}
+            }
+            with open(self.metadata_path, 'w') as metadata_file:
+                json.dump(default_metadata, metadata_file, indent=4)
+
+        # Lade die Konfiguration
         with open(self.config_path, 'r') as config_file:
             config = json.load(config_file)
-            self.window_x = config['window_x']
-            self.window_y = config['window_y']
+            self.window_x = config.get('window_x', 1200)
+            self.window_y = config.get('window_y', 800)
+
         return config
 
     def center_window(self):
