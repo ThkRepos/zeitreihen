@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import subprocess
 import importlib.util
 import sys
-import os
 
 
 def check_modul(modulname):
