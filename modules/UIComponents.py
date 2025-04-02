@@ -37,7 +37,7 @@ class UIComponents:
             zeige_alle(): Schaltet alle Zeitreihen-Checkboxen um.
         """
 
-    def __init__(self, master, csv_import_callback, config_callback, end_session_callback):
+    def __init__(self, master, csv_import_callback, config_callback, end_session_callback, config_path, metaplot_path):
         # Initialisierung der Hauptkomponenten und Callbacks
         self.master = master
         self.csv_import_callback = csv_import_callback
@@ -56,7 +56,7 @@ class UIComponents:
 
         # Daten und Konfiguration
         self.plot_dir = os.path.abspath("./plots")
-        self.metaplot_path = os.path.abspath("./metaplot.json")
+        self.metaplot_path = metaplot_path
         self.farbschemata = None
         self.metadaten = {"available_intervals": []}
         self.config = None
@@ -65,7 +65,7 @@ class UIComponents:
         self.aktive_zeitreihen = set()
 
         # Laden der Konfigurationen und Metadaten
-        self.config = lade_json(os.path.abspath('./config/config.json'))
+        self.config = lade_json(config_path)
         self.config_color_schemes = self.config['color_scheme']
         self.metadaten = lade_json(os.path.abspath('./metadata.json'))
         self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
@@ -150,6 +150,11 @@ class UIComponents:
         webbrowser.open(os.path.join("plots", plot_file))
 
     def update_plot(self):
+        # Anzeigen wenn Daten fehlen
+        if not self.metadaten['date_range']['start'] or not self.metadaten['date_range']['end']:
+            messagebox.showinfo("Info", "Kein Datumsbereich verfügbar. Bitte importieren Sie zuerst Daten.")
+            return
+
         # Aktualisieren des Plots basierend auf ausgewählten Zeitreihen und Datumsbereich
         active_series = self.hole_aktive_zeitreihen()
         date_range = self.metadaten['date_range']
@@ -213,6 +218,10 @@ class UIComponents:
         return f"Datumsbereich: {start} - {end}"
 
     def open_date_picker(self):
+        # Hiniweis das Daten zum Anzeigen fehlen
+        if not self.metadaten['date_range']['start'] or not self.metadaten['date_range']['end']:
+            messagebox.showinfo("Info", "Kein Datumsbereich verfügbar. Bitte importieren Sie zuerst Daten.")
+            return
         # Öffnen des Datumsauswahl-Fensters
         date_window = tk.Toplevel(self.master)
         date_window.title("Datumsauswahl")

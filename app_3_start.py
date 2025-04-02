@@ -41,7 +41,7 @@ class Application:
         self.master.geometry(f"{self.window_x}x{self.window_y}")
         self.center_window()
         self.data_importer = DataImporter(self.config)
-        self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
+        self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session,self.config_path, self.metaplot_path)
         self.create_widgets()
         self.show_platzhalter()
 
@@ -49,10 +49,10 @@ class Application:
         # Erstelle config.json
         if not os.path.exists(self.config_path):
             default_config = {
-                "window_x": 1200,
+                "window_x": 1000,
                 "window_y": 800,
-                "color_scheme": "default",
-                "delimiter": "\t",
+                "color_scheme": "spectrum",
+                "delimiter": "\\t",
                 "columns": ["DATE", "TIME", "OPEN", "HIGH", "LOW", "CLOSE", "TICKVOL", "VOL", "SPREAD"],
                 "date_format": "%Y.%m.%d %H:%M:%S"
             }
@@ -70,8 +70,7 @@ class Application:
                 json.dump(default_metadata, metadata_file, indent=4)
 
         # Erstelle metaplot.json
-        metaplot_path = os.path.abspath("./metaplot.json")
-        if not os.path.exists(metaplot_path):
+        if not os.path.exists(self.metaplot_path):
             with open(metaplot_path, 'w') as metaplot_file:
                 json.dump({}, metaplot_file)
 
