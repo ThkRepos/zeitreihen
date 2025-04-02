@@ -5,6 +5,27 @@ import json
 
 
 class ConfigWindow:
+    """
+        Verwaltet das Konfigurationsfenster für die Zeitreihen-Visualisierungs-Anwendung.
+
+        Diese Klasse erstellt ein separates Fenster für die Konfigurationseinstellungen der Anwendung.
+        Sie ermöglicht dem Benutzer, verschiedene Parameter wie CSV-Trennzeichen, Spaltennamen,
+        Datumsformat, Fenstergröße und Farbschema anzupassen und zu speichern.
+
+        Attribute:
+            master (tk.Tk): Das Hauptfenster der Anwendung.
+            update_callback (function): Callback zur Aktualisierung der Hauptanwendung.
+            config_path (str): Pfad zur Konfigurationsdatei.
+            color_schemes_path (str): Pfad zur Farbschema-Datei.
+
+        Methoden:
+            create_widgets(): Erstellt die UI-Elemente des Konfigurationsfensters.
+            save_config(): Speichert die aktuellen Konfigurationseinstellungen.
+            load_config(): Lädt gespeicherte Konfigurationseinstellungen.
+            reset_fields(): Setzt alle Eingabefelder auf Standardwerte zurück.
+            update_color_preview(): Aktualisiert die Farbvorschau basierend auf der Auswahl.
+        """
+
     def __init__(self, master, update_callback, config_path, color_schemes_path):
         # Initialisierung des Konfigurationsfensters
         self.config_path = config_path
@@ -33,7 +54,6 @@ class ConfigWindow:
 
     def create_widgets(self):
         # Erstellen der Eingabefelder und Labels für die Konfiguration
-
         # CSV-Import-Einstellungen
         tk.Label(self.window, text="CSV-Trennzeichen:").grid(row=0, column=0, sticky="w", padx=5, pady=5)
         self.delimiter_entry = tk.Entry(self.window, width=60)
@@ -55,7 +75,6 @@ class ConfigWindow:
         self.window_x_entry = tk.Entry(self.window, width=20)
         self.window_x_entry.grid(row=3, column=1, columnspan=1, padx=5, pady=5, sticky="ew")
         self.window_x_entry.insert(0, "1200")
-
         self.window_y_entry = tk.Entry(self.window, width=20)
         self.window_y_entry.grid(row=3, column=2, columnspan=1, padx=5, pady=5, sticky="ew")
         self.window_y_entry.insert(0, "800")
