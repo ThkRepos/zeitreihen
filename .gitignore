@@ -21,7 +21,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-config/cofig.json
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -84,3 +83,4 @@ venv.bak/
 zeitreihen_venv/
 /metaplot.json
 /metadata.json
+/config/config.json
