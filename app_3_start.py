@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import json
@@ -9,21 +10,23 @@ from modules.ConfigWindow import ConfigWindow
 
 class Application:
     def __init__(self, master):
+        self.color_schemes_path = os.path.abspath('resources/color_schemes.json')
+        self.config_path = os.path.abspath('config/config.json')
+        self.metadata_path = os.path.abspath('metadata.json')
         self.window_x = 1200
         self.window_y = 800
         self.config = self.lade_config()
-        self.metadata_manager = MetadataManager('metadata.json')
+        self.metadata_manager = MetadataManager(self.metadata_path)
         self.master = master
         self.master.title("Zeitreihen-Visualisierungs-App")
         self.master.geometry(f"{self.window_x}x{self.window_y}")
         self.center_window()
-
         self.data_importer = DataImporter(self.config)
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
         self.create_widgets()
 
     def lade_config(self):
-        with open('config/config.json', 'r') as config_file:
+        with open(self.config_path, 'r') as config_file:
             config = json.load(config_file)
             self.window_x = config['window_x']
             self.window_y = config['window_y']
@@ -58,7 +61,7 @@ class Application:
         self.ui_components.aktualisiere_intervalle(intervalle)
 
     def open_config(self):
-        ConfigWindow(self.master, self.aktualisiere_zeitreihen_checkboxen)
+        ConfigWindow(self.master, self.aktualisiere_zeitreihen_checkboxen, self.config_path, self.color_schemes_path)
 
     def end_session(self):
         if messagebox.askyesno("Sitzung beenden", "Möchten Sie die Sitzung wirklich beenden?"):
