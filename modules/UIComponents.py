@@ -104,14 +104,6 @@ class UIComponents:
         self.update_plot_button.pack(side=tk.LEFT, padx=5)
         self.erstelle_intervall_checkboxen()
 
-    def platzhalter_bild_anzeigen(self):
-        # Anzeigen eines Platzhalterbildes, wenn kein Chart verfügbar ist
-        placeholder_image = Image.open("charts_by_ki.jpg")
-        placeholder_photo = ImageTk.PhotoImage(placeholder_image)
-        placeholder_label = ttk.Label(self.chart_frame, image=placeholder_photo)
-        placeholder_label.image = placeholder_photo
-        placeholder_label.pack(fill="both", expand=True)
-
     def get_plot_files(self):
         # Abrufen der verfügbaren Plot-Dateien
         if not os.path.exists(self.plot_dir):
@@ -119,6 +111,9 @@ class UIComponents:
         return [f for f in os.listdir(self.plot_dir) if f.endswith('.html')]
 
     def create_hyperlink_area(self):
+        # Füge einen Separator oberhalb des hyperlink_frame hinzu
+        separator = ttk.Separator(self.master, orient='horizontal')
+        separator.pack(fill='x', pady=(5, 0))
         # Erstellen des Bereichs für Hyperlinks zu verfügbaren Plots
         self.hyperlink_frame = ttk.Frame(self.master)
         self.hyperlink_frame.pack(fill=tk.X, padx=10, pady=5)
@@ -126,17 +121,30 @@ class UIComponents:
         self.hyperlink_label.pack(side=tk.LEFT, padx=5)
 
     def update_hyperlinks(self):
+        # Laden der metaplot.json Daten
+        with open(self.metaplot_path, 'r') as f:
+            metaplot_data = json.load(f)
+
         # Aktualisieren der Hyperlinks zu verfügbaren Plots
         plot_files = self.get_plot_files()
         for widget in self.hyperlink_frame.winfo_children()[1:]:
             widget.destroy()
+
         for plot_file in plot_files:
-            link = ttk.Label(self.hyperlink_frame, text=plot_file, foreground="blue", cursor="hand2")
+            hash_value = plot_file.split('.')[0]  # Entfernen der .html Erweiterung
+            if hash_value in metaplot_data:
+                title = metaplot_data[hash_value]['titel']
+            else:
+                title = plot_file  # Fallback auf den Dateinamen, falls kein Eintrag gefunden
+
+            link = ttk.Label(self.hyperlink_frame, text=title, foreground="blue", cursor="hand2")
             link.pack(side=tk.LEFT, padx=5)
             link.bind("<Button-1>", lambda e, pf=plot_file: self.open_plot(pf))
+            link.bind("<Enter>", lambda e, l=link: l.configure(foreground="orange"))
+            link.bind("<Leave>", lambda e, l=link: l.configure(foreground="blue"))
 
     def open_plot(self, plot_file):
-        # Öffnen eines ausgewählten Plots im Webbrowser
+        # Öffnen des ausgewählten Plots im Webbrowser
         self.update_hyperlinks()
         import webbrowser
         webbrowser.open(os.path.join("plots", plot_file))
@@ -164,12 +172,13 @@ class UIComponents:
 
         if len(chart_data) > 0:
             chart_creator = PlotChartLine(self.plot_dir)
-            result_fig = chart_creator.create_chart(chart_data, date_range)
+            result_fig = chart_creator.create_chart(markt_symbol, chart_data, date_range)
             print(f"Daten: {result_fig[1]} / {result_fig[2]}")
-            self.update_metaplot(result_fig[1], result_fig[2], date_range)
-            result_fig[0].show()
+            self.update_metaplot(titel=result_fig[1], hash_value=result_fig[2], date_range=date_range)
+            self.update_hyperlinks()
         else:
-            self.platzhalter_bild_anzeigen()
+            messagebox.showinfo("Info", "Keine Daten für den ausgewählten Datumsbereich verfügbar.")
+
 
     def prepare_chart_data(self, active_series, date_range, symbol):
         # Vorbereiten der Daten für die Charterstellung

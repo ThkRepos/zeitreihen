@@ -18,6 +18,7 @@ für spezifische Funktionalitäten wie Datenimport und Metadatenverwaltung.
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+from PIL import Image, ImageTk
 import json
 from modules.UIComponents import UIComponents
 from modules.DataImporter import DataImporter
@@ -41,6 +42,7 @@ class Application:
         self.data_importer = DataImporter(self.config)
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session)
         self.create_widgets()
+        self.show_placeholder_image()
 
     def lade_config(self):
         # Laden der Konfigurationsdatei
@@ -57,6 +59,13 @@ class Application:
         x = (screen_width - int(self.window_x)) // 2
         y = (screen_height - int(self.window_y)) // 2
         self.master.geometry(f"{self.window_x}x{self.window_y}+{x}+{y}")
+
+    def show_placeholder_image(self):
+        placeholder_image = Image.open("charts_by_ki.jpg")
+        placeholder_photo = ImageTk.PhotoImage(placeholder_image)
+        self.placeholder_label = ttk.Label(self.master, image=placeholder_photo)
+        self.placeholder_label.image = placeholder_photo
+        self.placeholder_label.pack(side="bottom", fill="x", expand=False)
 
     def create_widgets(self):
         # Erstellen der UI-Komponenten
