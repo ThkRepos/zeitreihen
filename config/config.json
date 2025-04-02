@@ -12,7 +12,7 @@
         "SPREAD"
     ],
     "date_format": "%Y.%m.%d %H:%M:%S",
-    "color_scheme": "spectrum",
-    "window_y": "800",
-    "window_x": "1000"
+    "color_scheme": "complementary",
+    "window_y": "700",
+    "window_x": "898"
 }
