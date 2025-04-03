@@ -22,27 +22,19 @@ class MetadataManager:
      und Dateipfade für verschiedene Zeitreihen-Kombinationen.
      """
 
-    def __init__(self, metadata_file):
+    def __init__(self, metadata_path):
         # Initialisierung des MetadataManagers mit dem Pfad zur Metadaten-Datei
-        self.metadata_file = metadata_file
+        self.metadata_path = metadata_path
         self.metadata = self.load_metadata()
 
     def load_metadata(self):
-        # Laden der Metadaten aus der Datei oder Erstellen einer neuen Struktur, falls die Datei nicht existiert
-        try:
-            with open(self.metadata_file, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            return {
-                "available_intervals": [],
-                "symbols": [],
-                "date_range": {"start": None, "end": None},
-                "files": {}
-            }
+        # Laden der Metadaten aus der Datei
+        with open(self.metadata_path, 'r') as f:
+            return json.load(f)
 
     def save_metadata(self):
         # Speichern der aktuellen Metadaten in die Datei
-        with open(self.metadata_file, 'w') as f:
+        with open(self.metadata_path, 'w') as f:
             json.dump(self.metadata, f, indent=4)
 
     def update_metadata(self, symbol, interval, start_date, end_date, file_path):
@@ -53,12 +45,18 @@ class MetadataManager:
         self.metadata['symbols'] = list(set(self.metadata['symbols'] + [symbol]))
 
         # Aktualisieren des Startdatums, falls es das früheste ist
-        if self.metadata['date_range']['start'] is None or start_date < datetime.strptime(self.metadata['date_range']['start'], '%Y-%m-%d'):
+        if self.metadata['date_range']['start'] is None:
             self.metadata['date_range']['start'] = start_date.strftime('%Y-%m-%d')
+        else:
+            if start_date < datetime.strptime(self.metadata['date_range']['start'], '%Y-%m-%d'):
+                self.metadata['date_range']['start'] = start_date.strftime('%Y-%m-%d')
 
         # Aktualisieren des Enddatums, falls es das späteste ist
-        if self.metadata['date_range']['end'] is None or end_date > datetime.strptime(self.metadata['date_range']['end'], '%Y-%m-%d'):
+        if self.metadata['date_range']['end'] is None:
             self.metadata['date_range']['end'] = end_date.strftime('%Y-%m-%d')
+        else:
+            if end_date > datetime.strptime(self.metadata['date_range']['end'], '%Y-%m-%d'):
+                self.metadata['date_range']['end'] = end_date.strftime('%Y-%m-%d')
 
         # Speichern des Dateipfads für die Kombination aus Symbol und Intervall
         self.metadata['files'][f"{symbol}_{interval}"] = file_path

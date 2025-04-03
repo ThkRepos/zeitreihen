@@ -69,6 +69,7 @@ class UIComponents:
         self.config_color_schemes = self.config['color_scheme']
         self.metadaten = lade_json(os.path.abspath('./metadata.json'))
         self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
+        self.color_schema_old = self.config_color_schemes
 
     def erstelle_buttons(self):
         # Erstellen der Hauptbuttons und UI-Elemente
@@ -227,6 +228,7 @@ class UIComponents:
 
     def get_date_range_text(self):
         # Formatieren des Datumsbereich-Texts
+        self.metadaten = lade_json(os.path.abspath('./metadata.json'))
         start = self.metadaten['date_range']['start']
         end = self.metadaten['date_range']['end']
         return f"Datumsbereich: {start} - {end}"
@@ -268,7 +270,11 @@ class UIComponents:
         # Aktualisiert die Intervall-Checkboxen durch Löschen und Neuerstellen.
         self.config = lade_json('config/config.json')
         self.config_color_schemes = self.config['color_scheme']
-        print(f"Farbschemata neu: {self.config_color_schemes}")
+        self.farbschemata = lade_json('resources/color_schemes.json')
+
+        if self.color_schema_old != self.config_color_schemes:
+            print(f"Farbschemata neu: {self.config_color_schemes}")
+
         self.metadaten['available_intervals'] = intervalle
 
         # Lösche alle bestehenden Checkboxen
@@ -296,7 +302,7 @@ class UIComponents:
                                 bg=farbe)
             cb.pack(side=tk.LEFT, padx=5)
             self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
-
+        self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
         print("Intervall-Checkboxen neu erstellt")
 
     def aktualisiere_aktive_zeitreihen(self, intervall):

@@ -65,7 +65,8 @@ class Application:
             default_metadata = {
                 "available_intervals": [],
                 "symbols": [],
-                "date_range": {"start": "", "end": ""}
+                "date_range": {"start": None, "end": None},
+                "files": {}
             }
             with open(self.metadata_path, 'w') as metadata_file:
                 json.dump(default_metadata, metadata_file, indent=4)
@@ -77,8 +78,8 @@ class Application:
                 json.dump(default_metaplot, metaplot_file)
 
     def lade_config(self):
-        if not os.path.exists(self.config_path):
-            self.erster_init()
+        # Testen ob alls notwendigen files vorhanden sind
+        self.erster_init()
 
         with open(self.config_path, 'r') as config_file:
             config = json.load(config_file)
