@@ -83,8 +83,8 @@ class Application:
 
         with open(self.config_path, 'r') as config_file:
             config = json.load(config_file)
-            self.window_x = config.get('window_x', 1200)
-            self.window_y = config.get('window_y', 800)
+            self.window_x = config.get('window_x', 896)
+            self.window_y = config.get('window_y', 700)
 
         return config
 

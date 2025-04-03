@@ -73,37 +73,50 @@ class UIComponents:
 
     def erstelle_buttons(self):
         # Erstellen der Hauptbuttons und UI-Elemente
-        button_frame = ttk.Frame(self.master)
+        button_frame = tk.Frame(self.master)
         button_frame.pack(fill=tk.X, padx=10, pady=5)
 
-        buttons = [
-            ("CSV Import", self.csv_import_callback),
-            ("Datumsauswahl", self.open_date_picker),
-            ("Einstellungen", self.config_callback)
-        ]
+        # Definieren der Button-Stile
+        button_style = {
+            "font": ("Arial", 10),
+            "relief": tk.RAISED,
+            "borderwidth": 2,
+            "cursor": "hand2"
+        }
 
-        for text, command in buttons:
-            btn = ttk.Button(button_frame, text=text, command=command)
-            btn.pack(side=tk.LEFT, padx=5)
+        # CSV Import Button
+        csv_import_btn = tk.Button(button_frame, text="CSV Import", command=self.csv_import_callback, bg="lightblue", **button_style)
+        csv_import_btn.pack(side=tk.LEFT, padx=5)
+
+        # Datumsauswahl Button
+        date_picker_btn = tk.Button(button_frame, text="Datumsauswahl", command=self.open_date_picker, bg="lightgreen", **button_style)
+        date_picker_btn.pack(side=tk.LEFT, padx=5)
+
+        # Einstellungen Button
+        config_btn = tk.Button(button_frame, text="Einstellungen", command=self.config_callback, bg="lightyellow", **button_style)
+        config_btn.pack(side=tk.LEFT, padx=5)
 
         # Anzeige des aktuellen Datumsbereichs
-        self.date_range_label = ttk.Label(button_frame, text=self.get_date_range_text())
+        self.date_range_label = tk.Label(button_frame, text=self.get_date_range_text(), font=("Arial", 10))
         self.date_range_label.pack(side=tk.LEFT, padx=5)
 
         # Erstellung des "Sitzung beenden" Buttons
-        style = ttk.Style()
-        style.configure("Red.TButton", foreground="red", font=("Arial", 10, "bold"))
-        end_session_btn = ttk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback, style="Red.TButton")
+        end_session_btn = tk.Button(button_frame, text="Sitzung beenden", command=self.end_session_callback, bg="red", fg="white", **button_style)
         end_session_btn.pack(side=tk.RIGHT, padx=5)
 
         # Erstellung des Rahmens für Zeitreihen-Checkboxen
-        self.timeseries_frame = ttk.Frame(self.master)
+        self.timeseries_frame = tk.Frame(self.master)
         self.timeseries_frame.pack(fill=tk.X, padx=10, pady=5)
-        self.alle_anzeigen_button = ttk.Button(self.timeseries_frame, text="Alle anzeigen", command=self.zeige_alle)
+
+        # Alle Zeitreihen aktivieren/ deaktivieren Button
+        self.alle_anzeigen_button = tk.Button(self.timeseries_frame, text="Alle anzeigen", command=self.zeige_alle, bg="lightgray", **button_style)
         self.alle_anzeigen_button.pack(side=tk.LEFT, padx=5)
-        self.update_plot_button = ttk.Button(self.timeseries_frame, text="Chart-Plotten", command=self.update_plot)
+
+        # Chart-Plotten Button
+        self.update_plot_button = tk.Button(self.timeseries_frame, text="Chart-Plotten", command=self.update_plot, bg="lightpink", **button_style)
         self.update_plot_button.pack(side=tk.LEFT, padx=5)
         self.erstelle_intervall_checkboxen()
+
 
     def get_plot_files(self):
         # Abrufen der verfügbaren Plot-Dateien
@@ -228,7 +241,9 @@ class UIComponents:
 
     def get_date_range_text(self):
         # Formatieren des Datumsbereich-Texts
-        self.metadaten = lade_json(os.path.abspath('./metadata.json'))
+        if not self.metadaten['date_range']['start'] or not self.metadaten['date_range']['end']:
+            return "Kein Datumsbereich verfügbar"
+        #self.metadaten = lade_json(os.path.abspath('./metadata.json'))
         start = self.metadaten['date_range']['start']
         end = self.metadaten['date_range']['end']
         return f"Datumsbereich: {start} - {end}"
@@ -241,7 +256,7 @@ class UIComponents:
         # Öffnen des Datumsauswahl-Fensters
         date_window = tk.Toplevel(self.master)
         date_window.title("Datumsauswahl")
-
+        date_window.geometry("270x120")
         date_window.update_idletasks()
         width = date_window.winfo_width()
         height = date_window.winfo_height()
@@ -255,16 +270,25 @@ class UIComponents:
         ttk.Label(date_window, text="Startdatum:").grid(row=0, column=0, padx=5, pady=5)
         start_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
         start_picker.set_date(start_date)
-        start_picker.grid(row=0, column=1, padx=5, pady=5)
+        start_picker.grid(row=0, column=1, columnspan=2, padx=5, pady=5)
 
         ttk.Label(date_window, text="Enddatum:").grid(row=1, column=0, padx=5, pady=5)
         end_picker = DateEntry(date_window, width=12, background='darkblue', foreground='white', date_pattern='yyyy-mm-dd')
         end_picker.set_date(end_date)
-        end_picker.grid(row=1, column=1, padx=5, pady=5)
-
-        ttk.Button(date_window,
-                   text="Bestätigen",
-                   command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=0, columnspan=2, pady=10)
+        end_picker.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
+        # Buttons
+        tk.Button(date_window,
+                  text="Bestätigen",
+                  bg="green",
+                  fg="white",
+                  cursor="hand2",
+                  command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=1, padx=10)
+        tk.Button(date_window,
+                  text="Abbrechen",
+                  bg="red",
+                  fg="white",
+                  cursor="hand2",
+                  command=date_window.destroy).grid(row=2, column=2, pady=10)
 
     def aktualisiere_intervalle(self, intervalle):
         # Aktualisiert die Intervall-Checkboxen durch Löschen und Neuerstellen.
