@@ -2,6 +2,7 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import ttk
 from tkinter import messagebox
+import numpy as np
 import pandas as pd
 import json
 import os
@@ -31,10 +32,21 @@ class UIComponents:
 
         Methoden:
             erstelle_buttons(): Erstellt die Hauptbuttons der Anwendung.
-            aktualisiere_intervalle(intervalle): Aktualisiert die Zeitreihen-Checkboxen.
+            get_plot_files(): Gibt eine Liste der verfügbaren Plot-Dateien zurück.
+            create_hyperlink_area(): Erstellt den Bereich für Hyperlinks.
+            update_hyperlinks(): Aktualisiert die Hyperlinks basierend auf vorhandenen Plots.
+            open_plot(dateiname): Öffnet einen bestimmten Plot.
             update_plot(): Aktualisiert das angezeigte Diagramm.
+            prepare_chart_data(): Vorbereitet die Daten für den Plot.
+            get_date_range_text(): Gibt den Datumsbereich als Text zurück.
             open_date_picker(): Öffnet den Datumswähler.
+            aktualisiere_intervalle(intervalle): Aktualisiert die Zeitreihen-Checkboxen.
+            erstelle_intervall_checkboxen(intervalle): Erstellt Checkboxen für Zeitreihen-Intervalle.
+            aktuallisiere_aktive_zeitreihen(intervall): Aktualisiert die Zeitreihen-Checkboxen.
+            update_date_range(): Aktualisiert den Datumsbereich basierend auf den ausgewählten Zeitreihen.
             zeige_alle(): Schaltet alle Zeitreihen-Checkboxen um.
+            hole_aktive_zeitreihen(): Gibt die aktiven Zeitreihen zurück.
+            update_metaplot(): Aktualisiert das Metaplot basierend auf den ausgewählten Zeitreihen.
         """
 
     def __init__(self, master, csv_import_callback, config_callback, end_session_callback, config_path, metaplot_path):
@@ -115,6 +127,8 @@ class UIComponents:
         # Chart-Plotten Button
         self.update_plot_button = tk.Button(self.timeseries_frame, text="Chart-Plotten", command=self.update_plot, bg="lightpink", **button_style)
         self.update_plot_button.pack(side=tk.LEFT, padx=5)
+
+        # Erstellung Checkboxen für Zeitreihen
         self.erstelle_intervall_checkboxen()
 
 
@@ -145,7 +159,6 @@ class UIComponents:
             metaplot_data = json.load(f)
 
         plot_files = self.get_plot_files()
-
         # Finde den aktuellsten Plot
         latest_plot = max(metaplot_data.values(), key=lambda x: x['erstellt_am'], default=None)
         if latest_plot:
@@ -200,6 +213,7 @@ class UIComponents:
             messagebox.showinfo("Info", "Bitte wählen Sie einen Datumsbereich zwischen 1 bis 5 Tagen.\nAktuell: " + str(date_diff) + " Tage")
             return
 
+        # Aktualisieren des Plots basierend auf ausgewählten Zeitreihen und Datumsbereich
         chart_data = self.prepare_chart_data(active_series, date_range, markt_symbol)
         print(f"Aktualisiere Plot {markt_symbol} mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
 
@@ -212,11 +226,10 @@ class UIComponents:
         else:
             messagebox.showinfo("Info", "Keine Daten für den ausgewählten Datumsbereich verfügbar.")
 
-
     def prepare_chart_data(self, active_series, date_range, symbol):
         # Vorbereiten der Daten für die Charterstellung
-        datum_von = pd.to_datetime(date_range['start'], format='%Y-%m-%d')
-        datum_bis = pd.to_datetime(date_range['end'], format='%Y-%m-%d')
+        datum_von = datetime.strptime(date_range['start'], '%Y-%m-%d')
+        datum_bis = datetime.strptime(date_range['end'], '%Y-%m-%d')
 
         chart_data_list = []
 
@@ -227,7 +240,6 @@ class UIComponents:
 
             if os.path.exists(file_path):
                 df = pd.read_parquet(file_path)
-                df['DATE'] = pd.to_datetime(df['DATE'], format='%Y-%m-%d')
                 result_df = df[
                     (df['DATE'].dt.strftime('%Y-%m-%d') >= datum_von.strftime('%Y-%m-%d')) &
                     (df['DATE'].dt.strftime('%Y-%m-%d') <= datum_bis.strftime('%Y-%m-%d'))
@@ -263,7 +275,6 @@ class UIComponents:
         x = (date_window.winfo_screenwidth() // 2) - (width // 2)
         y = (date_window.winfo_screenheight() // 2) - (height // 2)
         date_window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-
         start_date = datetime.strptime(self.metadaten['date_range']['start'], '%Y-%m-%d').date()
         end_date = datetime.strptime(self.metadaten['date_range']['end'], '%Y-%m-%d').date()
 
@@ -277,18 +288,9 @@ class UIComponents:
         end_picker.set_date(end_date)
         end_picker.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
         # Buttons
-        tk.Button(date_window,
-                  text="Bestätigen",
-                  bg="green",
-                  fg="white",
-                  cursor="hand2",
+        tk.Button(date_window, text="Bestätigen", bg="green", fg="white", cursor="hand2",
                   command=lambda: self.update_date_range(start_picker.get_date(), end_picker.get_date(), date_window)).grid(row=2, column=1, padx=10)
-        tk.Button(date_window,
-                  text="Abbrechen",
-                  bg="red",
-                  fg="white",
-                  cursor="hand2",
-                  command=date_window.destroy).grid(row=2, column=2, pady=10)
+        tk.Button(date_window, text="Abbrechen", bg="red", fg="white", cursor="hand2", command=date_window.destroy).grid(row=2, column=2, pady=10)
 
     def aktualisiere_intervalle(self, intervalle):
         # Aktualisiert die Intervall-Checkboxen durch Löschen und Neuerstellen.
@@ -300,14 +302,12 @@ class UIComponents:
             print(f"Farbschemata neu: {self.config_color_schemes}")
 
         self.metadaten['available_intervals'] = intervalle
-
         # Lösche alle bestehenden Checkboxen
         for cb, _, _ in self.zeitreihen_checkboxen.values():
             cb.destroy()
         self.zeitreihen_checkboxen.clear()
         # Erstelle die Checkboxen neu
         self.erstelle_intervall_checkboxen()
-
         # Aktualisiere die Anzeige
         self.master.update()
 
@@ -319,11 +319,7 @@ class UIComponents:
         for intervall in self.metadaten['available_intervals']:
             var = tk.BooleanVar()
             farbe = colors.get(intervall, '#000000')
-            cb = tk.Checkbutton(self.timeseries_frame,
-                                text=intervall,
-                                variable=var,
-                                command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i),
-                                bg=farbe)
+            cb = tk.Checkbutton(self.timeseries_frame, text=intervall, variable=var, command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i), bg=farbe)
             cb.pack(side=tk.LEFT, padx=5)
             self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
         self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
