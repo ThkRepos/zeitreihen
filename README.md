@@ -60,7 +60,7 @@ Die einfachste Methode zur Installation ist die Verwendung unseres Setup-Skripts
 4. Unter Window starten Sie die setup.bat Datei für eine automatische Installation
 
 ```bash
-python app_1_setup_environment.py
+python app_setup_environment.py
 ```
 
 5. Nach Abschluss der Installation können Sie die Anwendung mit einem der generierten Startskripte starten:
@@ -77,7 +77,7 @@ pip install -r requirements.txt
 ```
 **oder:**
 ```bash
-python app_2_install_dependencies.py
+python app_install_dependencies.py
 ```
 
 Danach können Sie die Anwendung direkt starten:
