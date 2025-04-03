@@ -79,7 +79,7 @@ class UIComponents:
         # Laden der Konfigurationen und Metadaten
         self.config = lade_json(config_path)
         self.config_color_schemes = self.config['color_scheme']
-        self.metadaten = lade_json(os.path.abspath('./metadata.json'))
+        self.metadaten = lade_json(os.path.abspath('./config/metadata.json'))
         self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
         self.color_schema_old = self.config_color_schemes
 
@@ -295,9 +295,9 @@ class UIComponents:
 
     def aktualisiere_intervalle(self, intervalle):
         # Aktualisiert die Intervall-Checkboxen durch Löschen und Neuerstellen.
-        self.config = lade_json('config/config.json')
+        self.config = lade_json(os.path.abspath('./config/config.json'))
         self.config_color_schemes = self.config['color_scheme']
-        self.farbschemata = lade_json('resources/color_schemes.json')
+        self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
 
         if self.color_schema_old != self.config_color_schemes:
             print(f"Farbschemata neu: {self.config_color_schemes}")
@@ -313,7 +313,7 @@ class UIComponents:
         self.master.update()
 
     def erstelle_intervall_checkboxen(self):
-        #Erstellt die Intervall-Checkboxen mit aktualisierten Farben
+        # Erstellt die Intervall-Checkboxen mit aktualisierten Farben
         colors = self.farbschemata['schemes'][self.config_color_schemes]['colors']
         if not self.metadaten['available_intervals']:
             return
