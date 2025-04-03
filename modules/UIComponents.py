@@ -142,7 +142,7 @@ class UIComponents:
             self.latest_plot_link.bind("<Enter>", lambda e: self.latest_plot_link.configure(foreground="orange"))
             self.latest_plot_link.bind("<Leave>", lambda e: self.latest_plot_link.configure(foreground="blue"))
         else:
-            self.latest_plot_link.config(text="(Keine Plots verfügbar)")
+            self.latest_plot_link.config(text="(Keine Plots verfügbar)", font=('Arial', 10, 'bold'), foreground="red")
 
         for widget in self.links_frame.winfo_children():
             widget.destroy()
@@ -284,7 +284,8 @@ class UIComponents:
     def erstelle_intervall_checkboxen(self):
         #Erstellt die Intervall-Checkboxen mit aktualisierten Farben
         colors = self.farbschemata['schemes'][self.config_color_schemes]['colors']
-
+        if not self.metadaten['available_intervals']:
+            return
         for intervall in self.metadaten['available_intervals']:
             var = tk.BooleanVar()
             farbe = colors.get(intervall, '#000000')

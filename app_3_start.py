@@ -31,10 +31,10 @@ class Application:
         self.color_schemes_path = os.path.abspath('resources/color_schemes.json')
         self.config_path = os.path.abspath('config/config.json')
         self.metadata_path = os.path.abspath('metadata.json')
-        self.metaplot_path = os.path.abspath("metaplot.json")
-        self.window_x = 1200
-        self.window_y = 800
+        self.metaplot_path = os.path.abspath('metaplot.json')
         self.config = self.lade_config()
+        self.window_x = 896
+        self.window_y = 700
         self.metadata_manager = MetadataManager(self.metadata_path)
         self.master = master
         self.master.title("Zeitreihen-Visualisierungs-App")
@@ -42,6 +42,7 @@ class Application:
         self.center_window()
         self.data_importer = DataImporter(self.config)
         self.ui_components = UIComponents(self.master, self.csv_import, self.open_config, self.end_session,self.config_path, self.metaplot_path)
+        print(f"Systempfade:\nConfig: {self.config_path}\nMetadaten: {self.metadata_path}\nMetaPlotdaten: {self.metaplot_path}\nerfolgreich initialisiert")
         self.create_widgets()
         self.show_platzhalter()
 
@@ -49,8 +50,8 @@ class Application:
         # Erstelle config.json
         if not os.path.exists(self.config_path):
             default_config = {
-                "window_x": 1000,
-                "window_y": 800,
+                "window_x": 896,
+                "window_y": 700,
                 "color_scheme": "spectrum",
                 "delimiter": "\\t",
                 "columns": ["DATE", "TIME", "OPEN", "HIGH", "LOW", "CLOSE", "TICKVOL", "VOL", "SPREAD"],
@@ -71,8 +72,9 @@ class Application:
 
         # Erstelle metaplot.json
         if not os.path.exists(self.metaplot_path):
-            with open(metaplot_path, 'w') as metaplot_file:
-                json.dump({}, metaplot_file)
+            with open(self.metaplot_path, 'w') as metaplot_file:
+                default_metaplot = {}
+                json.dump(default_metaplot, metaplot_file)
 
     def lade_config(self):
         if not os.path.exists(self.config_path):
