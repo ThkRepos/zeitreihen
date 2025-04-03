@@ -93,7 +93,8 @@ class UIComponents:
             "font": ("Arial", 10),
             "relief": tk.RAISED,
             "borderwidth": 2,
-            "cursor": "hand2"
+            "cursor": "hand2",
+            "width": 13
         }
 
         # CSV Import Button
