@@ -145,6 +145,7 @@ class StartApplication:
             df, symbol, interval, start_date, end_date = self.data_importer.import_csv(file_path)
             if df is not None:
                 self.metadata_manager.update_metadata(symbol, interval, start_date, end_date, file_path)
+                self.ui_components.update_date_range(start_date=start_date, end_date=end_date)
                 print(f"Daten importiert für {symbol} {interval}")
                 self.aktualisiere_zeitreihen_checkboxen()
 

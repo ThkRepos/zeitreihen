@@ -255,7 +255,7 @@ class UIComponents:
         # Formatieren des Datumsbereich-Texts
         if not self.metadaten['date_range']['start'] or not self.metadaten['date_range']['end']:
             return "Kein Datumsbereich verfügbar"
-        #self.metadaten = lade_json(os.path.abspath('./metadata.json'))
+
         start = self.metadaten['date_range']['start']
         end = self.metadaten['date_range']['end']
         return f"Datumsbereich: {start} - {end}"
@@ -333,13 +333,14 @@ class UIComponents:
             self.aktive_zeitreihen.remove(intervall)
         print(f"Aktive Zeitreihen: {self.aktive_zeitreihen}")
 
-    def update_date_range(self, start_date, end_date, window):
+    def update_date_range(self, start_date, end_date, window=None):
         # Aktualisieren des Datumsbereichs und Schließen des Datumsauswahl-Fensters
         self.metadaten['date_range']['start'] = start_date.strftime('%Y-%m-%d')
         self.metadaten['date_range']['end'] = end_date.strftime('%Y-%m-%d')
         self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
         print(f"Neuer Datumsbereich: {self.metadaten['date_range']}")
-        window.destroy()
+        if window is not None:
+            window.destroy()
 
     def zeige_alle(self):
         # Umschalten aller Zeitreihen-Checkboxen
