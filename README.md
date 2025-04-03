@@ -293,7 +293,7 @@ zeitreihen-app/
 ├── README.md                         # Diese Dokumentation
 ├── app_1_setup.py                    # Einrichtungsskript (virtuelle Umgebung)
 ├── app_2_install_dependencies.py     # Hilfsskript zur Installation von Abhängigkeiten
-├── app_3_start.py                    # Hauptanwendungsdatei
+├── StartApplication.py               # Hauptanwendungsdatei
 ├── requirements.txt                  # Abhängigkeiten
 ├── start_app.bat                     # Startskript für Windows (generiert)
 ├── start_app.sh                      # Startskript für macOS/Linux (generiert)
