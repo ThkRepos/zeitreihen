@@ -84,3 +84,4 @@ zeitreihen_venv/
 /metaplot.json
 /metadata.json
 /config/config.json
+*.jpg
