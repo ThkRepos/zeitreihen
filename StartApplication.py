@@ -25,7 +25,35 @@ from modules.DataImporter import DataImporter
 from modules.MetadataManager import MetadataManager
 from modules.ConfigWindow import ConfigWindow
 
-class Application:
+class StartApplication:
+    """
+        Diese Klasse initialisiert die Benutzeroberfläche und verwaltet die Hauptfunktionen der Anwendung.
+
+        Attribute:
+            color_schemes_path (str): Pfad zur Farbschema-Konfigurationsdatei
+            config_path (str): Pfad zur Hauptkonfigurationsdatei
+            metadata_path (str): Pfad zur Metadaten-Datei
+            metaplot_path (str): Pfad zur Metaplot-Datei
+            config (dict): Geladene Konfigurationseinstellungen
+            window_x (int): Fensterbreite
+            window_y (int): Fensterhöhe
+            metadata_manager (MetadataManager): Verwaltet Metadaten
+            master (tk.Tk): Hauptfenster der Anwendung
+            data_importer (DataImporter): Importiert Daten
+            ui_components (UIComponents): Verwaltet UI-Komponenten
+
+        Methoden:
+            __init__(self, master): Initialisiert die Anwendung
+            erster_init(self): Erstellt initiale Konfigurationsdateien
+            lade_config(self): Lädt die Konfiguration
+            center_window(self): Zentriert das Hauptfenster auf dem Bildschirm
+            show_platzhalter(self): Zeigt ein Platzhalterbild an
+            create_widgets(self): Erstellt UI-Widgets
+            csv_import(self): Importiert CSV-Dateien
+            aktualisiere_zeitreihen_checkboxen(self): Aktualisiert Zeitreihen-Checkboxen
+            open_config(self): Öffnet das Konfigurationsfenster
+            end_session(self): Beendet die Anwendungssitzung
+        """
     def __init__(self, master):
         # Initialisierung der Hauptanwendung
         self.color_schemes_path = os.path.abspath('resources/color_schemes.json')
@@ -139,5 +167,5 @@ class Application:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = Application(root)
+    app = StartApplication(root)
     root.mainloop()

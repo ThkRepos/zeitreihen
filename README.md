@@ -83,7 +83,7 @@ python app_2_install_dependencies.py
 Danach können Sie die Anwendung direkt starten:
 
 ```bash
-python app_3_start.py
+python StartApplication.py
 ```
 
 ### Hinweis zu tkinter
