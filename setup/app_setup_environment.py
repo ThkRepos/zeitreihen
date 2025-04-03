@@ -52,7 +52,7 @@ def erstelle_startskript():
         with open("./start_app.bat", "w") as f:
             f.write(f"@echo off\n")
             f.write(f"echo Starte Zeitreihen-Visualisierungs-App...\n")
-            f.write(f"{VENV_DIR}\\Scripts\\python.exe -W ignore StartApplication.py\n")
+            f.write(f"zeitreihen_venv\\Scripts\\python.exe -W ignore StartApplication.py\n")
             f.write(f"pause\n")
 
         print("Startskript 'start_app.bat' wurde erstellt.")
@@ -61,7 +61,7 @@ def erstelle_startskript():
         with open("./start_app.sh", "w") as f:
             f.write("#!/bin/bash\n")
             f.write("echo \"Starte Zeitreihen-Visualisierungs-App...\"\n")
-            f.write(f"{VENV_DIR}/bin/python -W ignore StartApplication.py\n")
+            f.write(f"zeitreihen_venv/bin/python -W ignore StartApplication.py\n")
 
         # Führbar machen
         os.chmod("./start_app.sh", 0o755)
