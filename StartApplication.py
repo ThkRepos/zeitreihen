@@ -58,8 +58,8 @@ class StartApplication:
         # Initialisierung der Hauptanwendung
         self.color_schemes_path = os.path.abspath('resources/color_schemes.json')
         self.config_path = os.path.abspath('config/config.json')
-        self.metadata_path = os.path.abspath('metadata.json')
-        self.metaplot_path = os.path.abspath('metaplot.json')
+        self.metadata_path = os.path.abspath('config/metadata.json')
+        self.metaplot_path = os.path.abspath('config/metaplot.json')
         self.config = self.lade_config()
         self.window_x = 896
         self.window_y = 700
@@ -126,7 +126,7 @@ class StartApplication:
 
     def show_platzhalter(self):
         # Anzeigen eines Platzhalterbildes
-        placeholder_image = Image.open("charts_by_ki.jpg")
+        placeholder_image = Image.open(os.path.abspath("resources/charts_by_ki.jpg"))
         placeholder_photo = ImageTk.PhotoImage(placeholder_image)
         self.placeholder_label = ttk.Label(self.master, image=placeholder_photo)
         self.placeholder_label.image = placeholder_photo
