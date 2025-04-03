@@ -74,19 +74,27 @@ class ConfigWindow:
         tk.Label(self.window, text="Startfenster Breite / Länge:").grid(row=3, column=0, sticky="w", padx=5, pady=5)
         self.window_x_entry = tk.Entry(self.window, width=20)
         self.window_x_entry.grid(row=3, column=1, columnspan=1, padx=5, pady=5, sticky="ew")
-        self.window_x_entry.insert(0, "1200")
+        self.window_x_entry.insert(0, "896")
         self.window_y_entry = tk.Entry(self.window, width=20)
         self.window_y_entry.grid(row=3, column=2, columnspan=1, padx=5, pady=5, sticky="ew")
         self.window_y_entry.insert(0, "800")
 
+        # Definieren Button-Stile
+        button_style = {
+            "font": ("Arial", 10),
+            "relief": tk.RAISED,
+            "borderwidth": 2,
+            "cursor": "hand2",
+            "width": 10
+        }
+
         # Buttons
         button_frame = tk.Frame(self.window)
-        button_frame.grid(row=6, column=0, columnspan=4, pady=20)
-
-        tk.Button(button_frame, text="Speichern", command=self.save_config, bg='green').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Laden", command=self.load_config, bg='lightyellow').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Zurücksetzen", command=self.reset_fields, bg='lightpink').pack(side=tk.LEFT, padx=5)
-        tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='red').pack(side=tk.LEFT, padx=5)
+        button_frame.grid(row=6, column=1, columnspan=3, pady=20, sticky="ew")
+        tk.Button(button_frame, text="Speichern", command=self.save_config, bg='green', fg='white', **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Laden", command=self.load_config, bg='lightyellow', **button_style).pack(side=tk.LEFT, padx=5)
+        tk.Button(button_frame, text="Zurücksetzen", command=self.reset_fields, bg='lightpink', **button_style).pack(side=tk.LEFT, padx=10)
+        tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='red', fg='white', **button_style).pack(side=tk.LEFT, padx=5)
 
     def create_color_scheme_dropdown(self):
         # Erstellen des Dropdown-Menüs für Farbschemata
