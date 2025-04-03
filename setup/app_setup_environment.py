@@ -49,7 +49,7 @@ def erstelle_startskript():
     """Erstellt ein Skript zum einfachen Starten der Anwendung."""
     if platform.system() == "Windows":
         # Windows-Batchdatei
-        with open("start_app.bat", "w") as f:
+        with open("./start_app.bat", "w") as f:
             f.write(f"@echo off\n")
             f.write(f"echo Starte Zeitreihen-Visualisierungs-App...\n")
             f.write(f"{VENV_DIR}\\Scripts\\python.exe -W ignore StartApplication.py\n")
@@ -58,13 +58,13 @@ def erstelle_startskript():
         print("Startskript 'start_app.bat' wurde erstellt.")
     else:
         # Unix-Shell-Skript
-        with open("start_app.sh", "w") as f:
+        with open("./start_app.sh", "w") as f:
             f.write("#!/bin/bash\n")
             f.write("echo \"Starte Zeitreihen-Visualisierungs-App...\"\n")
             f.write(f"{VENV_DIR}/bin/python -W ignore StartApplication.py\n")
 
         # Führbar machen
-        os.chmod("start_app.sh", 0o755)
+        os.chmod("./start_app.sh", 0o755)
         print("Startskript 'start_app.sh' wurde erstellt.")
 
 
