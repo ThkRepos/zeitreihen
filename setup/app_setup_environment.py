@@ -40,7 +40,7 @@ def installiere_anforderungen():
     subprocess.check_call([python_interpreter, "-m", "pip", "install", "--upgrade", "pip"])
 
     print("Installiere Anforderungen in der virtuellen Umgebung...")
-    subprocess.check_call([python_interpreter, "-m", "pip", "install", "-r", "requirements.txt"])
+    subprocess.check_call([python_interpreter, "-m", "pip", "install", "-r", "setup/requirements.txt"])
 
     print("Alle Abhängigkeiten wurden erfolgreich installiert.")
 

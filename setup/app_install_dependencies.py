@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os.path
 import subprocess
 import importlib.util
 import sys
@@ -33,7 +33,7 @@ def installiere_anforderungen():
             sys.exit(0)
 
     anforderungen = []
-    with open('requirements.txt', 'r') as datei:
+    with open(os.path.abspath('setup/requirements.txt'), 'r') as datei:
         for zeile in datei:
             zeile = zeile.strip()
             if zeile and not zeile.startswith('#'):
