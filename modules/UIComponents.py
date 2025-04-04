@@ -82,6 +82,7 @@ class UIComponents:
         self.metadaten = lade_json(os.path.abspath('./config/metadata.json'))
         self.farbschemata = lade_json(os.path.abspath('./resources/color_schemes.json'))
         self.color_schema_old = self.config_color_schemes
+        self.markt_symbol = 'DE40'
 
     def erstelle_buttons(self):
         # Erstellen der Hauptbuttons und UI-Elemente
@@ -200,7 +201,6 @@ class UIComponents:
         # Aktualisieren des Plots basierend auf ausgewählten Zeitreihen und Datumsbereich
         active_series = self.hole_aktive_zeitreihen()
         date_range = self.metadaten['date_range']
-        markt_symbol = self.metadaten['symbols'][0]
 
         if len(active_series) == 0:
             messagebox.showinfo("Info", f"Bitte wählen Sie mindestens eine Zeitreihe aus.")
@@ -213,14 +213,13 @@ class UIComponents:
         if date_diff > 5:
             messagebox.showinfo("Info", "Bitte wählen Sie einen Datumsbereich zwischen 1 bis 5 Tagen.\nAktuell: " + str(date_diff) + " Tage")
             return
-
         # Aktualisieren des Plots basierend auf ausgewählten Zeitreihen und Datumsbereich
-        chart_data = self.prepare_chart_data(active_series, date_range, markt_symbol)
-        print(f"Aktualisiere Plot {markt_symbol} mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
+        chart_data = self.prepare_chart_data(active_series, date_range, self.markt_symbol)
+        print(f"Aktualisiere Plot {self.markt_symbol} mit Zeitreihen: {active_series} und Datumsbereich: {date_range}")
 
         if len(chart_data) > 0:
             chart_creator = PlotChartLine(self.plot_dir)
-            result_fig = chart_creator.create_chart(markt_symbol, chart_data, date_range)
+            result_fig = chart_creator.create_chart(self.markt_symbol, chart_data, date_range)
             print(f"Daten: {result_fig[1]} / {result_fig[2]}")
             self.update_metaplot(titel=result_fig[1], hash_value=result_fig[2], date_range=date_range)
             self.update_hyperlinks()
@@ -320,7 +319,7 @@ class UIComponents:
         for intervall in self.metadaten['available_intervals']:
             var = tk.BooleanVar()
             farbe = colors.get(intervall, '#000000')
-            cb = tk.Checkbutton(self.timeseries_frame, text=intervall, variable=var, command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i), bg=farbe)
+            cb = tk.Checkbutton(self.timeseries_frame, cursor='hand2', text=intervall, variable=var, command=lambda i=intervall: self.aktualisiere_aktive_zeitreihen(i), bg=farbe)
             cb.pack(side=tk.LEFT, padx=5)
             self.zeitreihen_checkboxen[intervall] = (cb, var, farbe)
         self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
@@ -339,7 +338,7 @@ class UIComponents:
         self.metadaten['date_range']['start'] = start_date.strftime('%Y-%m-%d')
         self.metadaten['date_range']['end'] = end_date.strftime('%Y-%m-%d')
         self.date_range_label.config(text=self.get_date_range_text(), font=("Arial", 12, "bold"))
-        print(f"Neuer Datumsbereich: {self.metadaten['date_range']}")
+        print(f"Neuer Datumsbereich:{self.markt_symbol} - {self.metadaten['date_range']}")
         if window is not None:
             window.destroy()
 
