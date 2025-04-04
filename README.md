@@ -2,7 +2,7 @@
 
 Eine interaktive Anwendung zur Visualisierung und Analyse von Zeitreihen-Finanzdaten mit Unterstützung für mehrere Zeiteinheiten und zukünftiger Live-Daten-Integration.
 
-![Zeitreihen-Visualisierungs-App](resources/charts_by_ki.jpg)
+![Zeitreihen-Visualisierungs-App](../resources/charts_by_ki.jpg)
 ++ Quelle: Bild mit Microsoft Ki-Bildgenerator ++
 
 ## Inhaltsverzeichnis
