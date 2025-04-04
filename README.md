@@ -2,7 +2,7 @@
 
 Eine interaktive Anwendung zur Visualisierung und Analyse von Zeitreihen-Finanzdaten mit Unterstützung für mehrere Zeiteinheiten und zukünftiger Live-Daten-Integration.
 
-![Zeitreihen-Visualisierungs-App](charts_by_ki.jpg)
+![Zeitreihen-Visualisierungs-App](resources/charts_by_ki.jpg)
 ++ Quelle: Bild mit Microsoft Ki-Bildgenerator ++
 
 ## Inhaltsverzeichnis
@@ -60,7 +60,7 @@ Die einfachste Methode zur Installation ist die Verwendung unseres Setup-Skripts
 4. Unter Window starten Sie die setup.bat Datei für eine automatische Installation
 
 ```bash
-python app_setup_environment.py
+python setup/app_setup_environment.py
 ```
 
 5. Nach Abschluss der Installation können Sie die Anwendung mit einem der generierten Startskripte starten:
@@ -73,11 +73,11 @@ python app_setup_environment.py
 Falls Sie die Abhängigkeiten manuell installieren möchten:
 
 ```bash
-pip install -r requirements.txt
+pip install -r setup/requirements.txt
 ```
 **oder:**
 ```bash
-python app_install_dependencies.py
+python setup/app_install_dependencies.py
 ```
 
 Danach können Sie die Anwendung direkt starten:
@@ -291,13 +291,11 @@ Für jede CSV-Datei wird eine entsprechende JSON-Metadatendatei erstellt:
 ```
 zeitreihen-app/
 ├── README.md                         # Diese Dokumentation
-├── app_1_setup.py                    # Einrichtungsskript (virtuelle Umgebung)
-├── app_2_install_dependencies.py     # Hilfsskript zur Installation von Abhängigkeiten
 ├── StartApplication.py               # Hauptanwendungsdatei
-├── requirements.txt                  # Abhängigkeiten
 ├── start_app.bat                     # Startskript für Windows (generiert)
 ├── start_app.sh                      # Startskript für macOS/Linux (generiert)
 ├── config/
+│   ├── metaplot.json                 # Speicherung der Plotdaten
 │   └── config.json                   # Allgemeine App-Einstellungen
 ├── modules/
 │   ├── ConfigWindow.py               # CSV-Einlesung, Caching, Datentransformation
@@ -305,6 +303,10 @@ zeitreihen-app/
 │   ├── MetadataManager.py            # Handling von spezifischen Metadaten
 │   ├── PlotChartline.py              # Plotly-Integration, Chart-Erstellung
 │   └── UIComponents.py               # Tkinter-UI-Komponenten
+├── setup/
+│   ├── app_install_dependencies.py   # Hilfsskript zur Installation von Abhängigkeiten
+│   ├── app_setup_environment.py      # Einrichtungsskript (virtuelle Umgebung)
+│   └── requirements.txt              # Abhängigkeiten
 ├── cache/
 │   ├── data/                         # Gespeicherte CSV-Dateien
 │   └── meta/                         # Metadaten-JSON-Dateien
@@ -346,13 +348,13 @@ zeitreihen-app/
 
 **F: Die Anwendung startet nicht und zeigt einen ImportError**  
 A: Stellen Sie sicher, dass alle Abhängigkeiten korrekt installiert sind. 
-Führen Sie `python app_2_install_dependencies.py` aus oder verwenden Sie das Setup-Skript erneut.
+Führen Sie `python setup/app_install_dependencies.py` aus oder verwenden Sie das Setup-Skript erneut.
 
 **F: Die Charts werden nicht angezeigt**  
 A: Prüfen Sie, ob die ausgewählte CSV-Datei dem erwarteten Format entspricht und gültige Daten enthält.
 
 **F: Änderungen der Farbschemata werden nicht angewendet**  
-A: Nachdem Sie Änderungen an `color_schemes.json` vorgenommen haben, starten Sie die Anwendung neu.
+A: Nachdem Sie Änderungen an `resources/color_schemes.json` vorgenommen haben, starten Sie die Anwendung neu.
 
 ### Probleme mit der virtuellen Umgebung
 
