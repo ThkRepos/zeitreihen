@@ -163,7 +163,7 @@ class StartApplication:
 
     def end_session(self):
         # Beenden der Anwendungssitzung
-        if messagebox.askyesno("Sitzung beenden", "Möchten Sie die Sitzung wirklich beenden?"):
+        if messagebox.askyesno("Sitzung beenden", "Möchten Sie die Sitzung wirklich beenden? "):
             self.master.quit()
 
 if __name__ == "__main__":

@@ -137,7 +137,7 @@ class ConfigWindow:
             json.dump(config, f, indent=4)
 
         self.update_callback()
-        messagebox.showinfo("Info", "Konfiguration gespeichert!")
+        messagebox.showinfo("Info", "Konfiguration gespeichert! ")
         self.window.destroy()
 
     def load_config(self):

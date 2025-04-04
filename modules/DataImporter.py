@@ -70,7 +70,7 @@ class DataImporter:
                 # Speichert Daten im Cache
                 df.to_parquet(cache_file)
                 self.update_metadata(meta_file, symbol, interval, start_date, end_date, df)
-                print(f"Datei erfolgreich eingelesen und gecached: {file_path}")
+                print(f"Datei erfolgreich eingelesen und gecached: {file_path} ")
 
             # Bereitet das Ergebnis-DataFrame vor
             result_df = df[['DATE', 'TIME', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'direction', 'daytime']]

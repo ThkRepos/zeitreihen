@@ -203,7 +203,7 @@ class UIComponents:
         date_range = self.metadaten['date_range']
 
         if len(active_series) == 0:
-            messagebox.showinfo("Info", f"Bitte wählen Sie mindestens eine Zeitreihe aus.")
+            messagebox.showinfo("Info", f"Bitte wählen Sie mindestens eine Zeitreihe aus. ")
             return
 
         start_date = datetime.strptime(date_range['start'], '%Y-%m-%d')
