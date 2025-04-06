@@ -126,7 +126,7 @@ class StartApplication:
 
     def show_platzhalter(self):
         # Anzeigen eines Platzhalterbildes
-        placeholder_image = Image.open(os.path.abspath("resources/charts_by_ki.jpg"))
+        placeholder_image = Image.open(os.path.abspath("charts_by_ki.jpg"))
         placeholder_photo = ImageTk.PhotoImage(placeholder_image)
         self.placeholder_label = ttk.Label(self.master, image=placeholder_photo)
         self.placeholder_label.image = placeholder_photo
