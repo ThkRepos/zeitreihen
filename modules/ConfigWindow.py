@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 import json
 
+from modules.ColorSchemeEditor import ColorSchemeEditor
+
 
 class ConfigWindow:
     """
@@ -90,11 +92,16 @@ class ConfigWindow:
 
         # Buttons
         button_frame = tk.Frame(self.window)
-        button_frame.grid(row=6, column=1, columnspan=3, pady=20, sticky="ew")
+        button_frame.grid(row=6, column=0, columnspan=4, pady=20, sticky="ew")
+        tk.Button(button_frame, text="Farbschema bearbeiten", command=self.open_color_scheme_editor, **button_style).pack(side=tk.LEFT, padx=25)
         tk.Button(button_frame, text="Speichern", command=self.save_config, bg='green', fg='white', **button_style).pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Laden", command=self.load_config, bg='lightyellow', **button_style).pack(side=tk.LEFT, padx=5)
         tk.Button(button_frame, text="Zurücksetzen", command=self.reset_fields, bg='lightpink', **button_style).pack(side=tk.LEFT, padx=10)
         tk.Button(button_frame, text="Abbrechen", command=self.close_clicked, bg='red', fg='white', **button_style).pack(side=tk.LEFT, padx=5)
+
+    def open_color_scheme_editor(self):
+        color_editor = tk.Toplevel(self.window)
+        ColorSchemeEditor(color_editor)
 
     def create_color_scheme_dropdown(self):
         # Erstellen des Dropdown-Menüs für Farbschemata
@@ -104,7 +111,7 @@ class ConfigWindow:
         self.color_scheme_dropdown['values'] = list(self.color_schemes['schemes'].keys())
         self.color_scheme_dropdown.grid(row=5, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
         self.color_scheme_dropdown.bind("<<ComboboxSelected>>", self.update_color_preview)
-        self.color_scheme_var.set(self.color_schemes['default'])
+        self.color_scheme_var.set(list(self.color_schemes['schemes'].keys())[0])
         self.update_color_preview()
 
     def update_color_preview(self, event=None):
