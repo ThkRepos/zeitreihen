@@ -28,6 +28,7 @@ Eine interaktive Anwendung zur Visualisierung und Analyse von Zeitreihen-Finanzd
 - [Projektstruktur](#projektstruktur)
 - [Entwicklungsplan](#entwicklungsplan)
 - [Fehlerbehebung und FAQ](#fehlerbehebung-und-faq)
+- [Ablaufvorschau](#ablaufvorschau)
 
 ## Übersicht
 
@@ -383,6 +384,9 @@ A:
 - Stellen Sie sicher, dass die optionalen Leistungs-Abhängigkeiten (orjson, pyarrow) installiert sind
 
 ---
+## Ablaufvorschau
+![ZeitreihenInfoBild](ZeitreihenAppInfo.gif)
 
+---
 **Hinweis:** Dieses Projekt wird aktiv weiterentwickelt. Bei Fragen oder Problemen erstellen Sie bitte ein Issue im Repository oder kontaktieren Sie das Entwicklungsteam.
 
